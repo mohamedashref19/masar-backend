@@ -19,33 +19,34 @@ const app = express();
 //Security Middlewares
 app.use(helmet());
 app.use(cors());
-app.use(mongoSanitize());
 app.use(hpp());
 
 // Rate limiting
 const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'Too many requests from this IP, please try again in an hour!',
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
 
 //Dev Logging
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+    app.use(morgan('dev'));
 }
 
 //  Body Parser
 app.use(express.json({ limit: '10kb' }));
 
+// sanitizes input
+app.use(mongoSanitize());
+
 //  Routes
 
-app.use(`/users` , userRouter);
-
+app.use(`/api/v1/users`, userRouter);
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
 // Global Error Handler
