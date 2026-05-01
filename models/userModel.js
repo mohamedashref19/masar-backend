@@ -115,6 +115,19 @@ userSchema.methods.doPasswordsMatch = async function (plainPassword , hashedPass
     return await bcrypt.compare(plainPassword , hashedPassword);
 }
 
+userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  return false;
+};
+
 // document middleware to hash password before saving it , to not save passwordConfirm
 userSchema.pre('save' , async function(){
     // if he has modified anything other than password , we don't wanna hash it again
