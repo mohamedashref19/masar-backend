@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 module.exports = class Email {
   constructor(user, url) {
     this.to        = user.email;
-    this.firstName = user.name.split(" ")[0];
+    this.firstName = user.fullName.split(" ")[0] || user.fullName;
     this.url       = url;
     this.from      = `Masar Platform <${process.env.EMAIL_FROM}>`;
   }
