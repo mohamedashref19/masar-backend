@@ -103,7 +103,11 @@ const userSchema = new mongoose.Schema(
 
     passwordChangedAt: {
         type: Date,
-    }
+    },
+
+    resetPasswordToken: String,
+
+    passwordResetExpires: Date,
 
   },
 
@@ -128,6 +132,16 @@ userSchema.methods.changedPasswordAfter = function(JWTTimestamp) {
   return false;
 };
 
+userSchema.methods.createPasswordResetToken = function(){
+    const resetToken = crypto.randomBytes(32).toString('hex');
+
+    this.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    this.passwordResetExpires = Date.now() + 10 * 1000 * 60;
+
+    return resetToken;
+};
+
+
 // document middleware to hash password before saving it , to not save passwordConfirm
 userSchema.pre('save' , async function(){
     // if he has modified anything other than password , we don't wanna hash it again
@@ -137,6 +151,8 @@ userSchema.pre('save' , async function(){
     this.password = await bcrypt.hash(this.password , 12);
     this.passwordConfirm = undefined;
 })
+
+
 
 
 
