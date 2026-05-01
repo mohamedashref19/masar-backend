@@ -1,6 +1,9 @@
 // models/User.js
 const mongoose = require('mongoose');
 
+// modules
+const bcrypt = require('bcrypt');
+
 const freelancerProfileSchema = new mongoose.Schema(
   {
     title: String,
@@ -63,6 +66,8 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      minlength: [8 , 'Password must be longer than 7 characters'],
+      select: false
     },
 
     passwordConfirm: {
@@ -95,10 +100,30 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    passwordChangedAt: {
+        type: Date,
+    }
+
   },
 
   { timestamps: true },
 );
+
+
+userSchema.methods.doPasswordsMatch = async function (plainPassword , hashedPassword){
+    return await bcrypt.compare(plainPassword , hashedPassword);
+}
+
+// document middleware to hash password before saving it , to not save passwordConfirm
+userSchema.pre('save' , async function(){
+    // if he has modified anything other than password , we don't wanna hash it again
+    if(!this.isModified("password")) return;
+
+    // other than than feel free to hash it (new user , modified password)
+    this.password = await bcrypt.hash(this.password , 12);
+    this.passwordConfirm = undefined;
+})
 
 
 
