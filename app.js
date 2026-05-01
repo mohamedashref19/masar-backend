@@ -9,6 +9,9 @@ const rateLimit = require('express-rate-limit');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 
+// Routers
+const userRouter = require(`./routes/userRoutes`);
+
 // Routes imports
 
 const app = express();
@@ -27,7 +30,6 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-
 //Dev Logging
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -37,6 +39,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json({ limit: '10kb' }));
 
 //  Routes
+
+app.use(`/users` , userRouter);
+
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {
