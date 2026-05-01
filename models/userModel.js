@@ -65,6 +65,18 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    passwordConfirm: {
+        type: String,
+        required: true,
+        validate: {
+            validator(val){
+                return val === this.password;
+            },
+
+            message: "Passwords MUST match"
+        }
+    },
+
     role: {
       type: String,
       enum: ['client', 'freelancer', 'admin'],
