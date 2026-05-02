@@ -33,7 +33,7 @@ const projectSchema = new mongoose.Schema(
             type: Date,
             required: [true, 'Project must have a deadline'],
             validate: {
-                validator: function(val) {
+                validator: function (val) {
                     return val > Date.now();
                 },
                 message: 'Deadline Must be in the future',
@@ -59,7 +59,7 @@ const projectSchema = new mongoose.Schema(
 projectSchema.pre(/^find/, function () {
     this.populate({
         path: 'client',
-        select: 'name email',
+        select: 'name email profileImage',
     });
 });
 

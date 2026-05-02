@@ -7,8 +7,6 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const apiFeatures = require('./../utils/apiFeatures');
 
-
-
 exports.createProject = catchAsync(async (req, res, next) => {
     let filteredObj = filterObject(
         req.body,
@@ -83,7 +81,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
     );
 
     const updatedProject = await Project.findByIdAndUpdate(req.params.projectId, filteredObj, {
-        new: true,
+        returnDocument: 'after',
         runValidators: true,
     });
 

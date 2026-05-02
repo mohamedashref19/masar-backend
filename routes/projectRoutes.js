@@ -4,6 +4,7 @@ const router = express.Router();
 
 const authController = require('./../controllers/authController');
 const projectController = require('./../controllers/projectController');
+const proposalRouter = require('./proposalRoutes');
 
 router
     .route('/')
@@ -13,8 +14,7 @@ router
         projectController.createProject,
     )
     .get(projectController.getAllProjects);
-
-
+router.use('/:projectId/proposals', proposalRouter);
 router
     .route('/:projectId')
     .get(projectController.getProject)
