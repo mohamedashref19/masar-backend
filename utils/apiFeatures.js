@@ -57,7 +57,7 @@ module.exports = APIFeatures;
 
 /*
  * ============================================================
- * HOW TO USE IN CONTROLLERS
+ * HOW  IN CONTROLLERSTO USE
  * ============================================================
  *
  * Example — getAllProjects:

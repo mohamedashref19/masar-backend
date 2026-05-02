@@ -14,6 +14,7 @@ const cookieParser = require('cookie-parser');
 
 // Routers
 const userRouter = require(`./routes/userRoutes`);
+const projectRouter = require(`./routes/projectRoutes`);
 
 
 const app = express();
@@ -48,6 +49,7 @@ app.use(mongoSanitize());
 //  Routes
 
 app.use(`/api/v1/users`, userRouter);
+app.use(`/api/v1/projects`, projectRouter);
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {
