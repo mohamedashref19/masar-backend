@@ -31,6 +31,12 @@ const projectSchema = new mongoose.Schema(
     deadline: {
       type: Date,
       required: [true, 'Project must have a deadline'],
+      validate: {
+        function(val){
+            return val > Date.now()
+        },
+        message: 'Deadline Must be in the future' 
+      }
     },
 
     client: {
