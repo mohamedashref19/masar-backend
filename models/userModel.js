@@ -144,7 +144,7 @@ userSchema.methods.createPasswordResetToken = function () {
 };
 
 // document middleware to hash password before saving it , to not save passwordConfirm
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
     // if he has modified anything other than password , we don't wanna hash it again
     if (!this.isModified('password')) return;
 
@@ -154,12 +154,10 @@ userSchema.pre('save', async function (next) {
 });
 
 // setting the time of last changed password
-userSchema.pre('save', function(next) {
-  if (!this.isModified('password') || this.isNew) return next();
+userSchema.pre('save', function() {
+  if (!this.isModified('password') || this.isNew) return;
 
   this.passwordChangedAt = Date.now() - 1000;
-
-  next();
 });
 
 

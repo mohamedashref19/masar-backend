@@ -1,18 +1,20 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const mongoSanitize = require('express-mongo-sanitize');
-const hpp = require('hpp');
-const rateLimit = require('express-rate-limit');
-
+// utils
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
+
+// Modules
+const hpp = require('hpp');
+const express = require('express');
+const cors = require('cors');
+const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 // Routers
 const userRouter = require(`./routes/userRoutes`);
 
-// Routes imports
 
 const app = express();
 
@@ -36,6 +38,9 @@ if (process.env.NODE_ENV === 'development') {
 
 //  Body Parser
 app.use(express.json({ limit: '10kb' }));
+
+// cookie parser
+app.use(cookieParser(process.env.JWT_COOKIE_SECRET));
 
 // sanitizes input
 app.use(mongoSanitize());

@@ -10,7 +10,6 @@ const DB = process.env.DATABASE.replace('<db_username>', process.env.DATABASE_US
   process.env.DATABASE_PASSWORD,
 );
 
-console.log(DB.replace(process.env.DATABASE_PASSWORD, 'HIDDEN'));
 
 mongoose
   .connect(DB)

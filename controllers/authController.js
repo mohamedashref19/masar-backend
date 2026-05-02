@@ -11,7 +11,6 @@ const Email = require('./../utils/email');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-
 const signTokenAndSend = (user, res, statusCode) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -79,7 +78,7 @@ exports.protect = catchAsync(async (req, res, next) => {
     next();
 });
 
-module.exports.restrictTo = (...roles) => {
+exports.restrictTo = (...roles) => {
     return (req, res, next) => {
         // roles = ['user' , 'admin'] for instance
 
@@ -93,8 +92,12 @@ module.exports.restrictTo = (...roles) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+    if (req.body.role === 'admin') {
+        return next(new AppError('You cannot sign up as admin', 403));
+    }
+
     // Base allowed fields
-    const baseFields = ['fullName', 'email', 'password', 'passwordConfirm', 'phone', 'role'];
+    const baseFields = ['name', 'email', 'password', 'passwordConfirm', 'phone' , 'role'];
 
     let filteredObj = filterObject(req.body, ...baseFields);
 
@@ -133,7 +136,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     const newUser = await User.create(filteredObj);
 
     // sending welcome email
-    const email = new Email(newUser , `faksdfhjjsfsfhasdfasdfj`); // *FIX LATER* should be url to home page of our website
+    const email = new Email(newUser, `faksdfhjjsfsfhasdfasdfj`); // *FIX LATER* should be url to home page of our website
     email.sendWelcome();
 
     // assign user a token to log him in and sending response
@@ -169,7 +172,7 @@ exports.logout = (req, res) => {
     });
 };
 
-module.exports.forgotPassword = catchAsync(async (req, res, next) => {
+exports.forgotPassword = catchAsync(async (req, res, next) => {
     const user = await User.findOne({ email: req.body.email });
 
     // checking if user exists or not
@@ -183,7 +186,7 @@ module.exports.forgotPassword = catchAsync(async (req, res, next) => {
 
     try {
         // sending the email to the user with the reset password token
-        const email = new Email(user , resetToken).sendPasswordReset(); // *FIX LATER* should be url to reset password page or something like that
+        const email = new Email(user, resetToken).sendPasswordReset(); // *FIX LATER* should be url to reset password page or something like that
 
         return res.status(200).json({
             status: 'success',
@@ -199,19 +202,26 @@ module.exports.forgotPassword = catchAsync(async (req, res, next) => {
     }
 });
 
-module.exports.resetPassword = catchAsync (async (req , res , next) => {
+exports.resetPassword = catchAsync(async (req, res, next) => {
     const token = req.params.token;
 
     const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     // Finding the user by the token and checking if the user is correct and if it had expired
-    const user = await User.findOne({resetPasswordToken: hashedToken , passwordResetExpires: {$gt: Date.now()}});
+    const user = await User.findOne({
+        resetPasswordToken: hashedToken,
+        passwordResetExpires: { $gt: Date.now() },
+    });
 
     // Checking if user exists
     if (!user) return next(new AppError('Token is invalid or has expired', 404)); // 404 -> Not Found
 
-    if( !req.body.password || !req.body.passwordConfirm || req.body.password !== req.body.passwordConfirm){
-        return next(new AppError('Please enter matching password and passwordConfirm' , 401));
+    if (
+        !req.body.password ||
+        !req.body.passwordConfirm ||
+        req.body.password !== req.body.passwordConfirm
+    ) {
+        return next(new AppError('Please enter matching password and passwordConfirm', 401));
     }
 
     user.password = req.body.password;
@@ -220,8 +230,8 @@ module.exports.resetPassword = catchAsync (async (req , res , next) => {
     user.resetPasswordToken = undefined;
     user.passwordResetExpires = undefined;
 
-    await user.save({runValidators: true});
+    await user.save({ runValidators: true });
 
     // signing the user in
-    return signTokenAndSend(user , res , 200);
+    return signTokenAndSend(user, res, 200);
 });
