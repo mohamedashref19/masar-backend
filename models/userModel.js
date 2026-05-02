@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 // modules
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const validator = require('validator');
 
 const freelancerProfileSchema = new mongoose.Schema(
     {
@@ -62,6 +63,7 @@ const userSchema = new mongoose.Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            validate: [validator.isEmail, 'Please provide a valid email'],
         },
 
         password: {
@@ -101,7 +103,14 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
-
+        otp: {
+            type: String,
+            select: false,
+        },
+        otpExpires: {
+            type: Date,
+            select: false,
+        },
         passwordChangedAt: {
             type: Date,
         },
@@ -154,17 +163,15 @@ userSchema.pre('save', async function () {
 });
 
 // setting the time of last changed password
-userSchema.pre('save', function() {
-  if (!this.isModified('password') || this.isNew) return;
+userSchema.pre('save', function () {
+    if (!this.isModified('password') || this.isNew) return;
 
-  this.passwordChangedAt = Date.now() - 1000;
+    this.passwordChangedAt = Date.now() - 1000;
 });
 
-
-
 // don't select users who have been soft deleted
-userSchema.pre(/^find/ , async function(){
-    this.find({active : {$ne : false}});
-})
+userSchema.pre(/^find/, async function () {
+    this.find({ active: { $ne: false } });
+});
 
 module.exports = mongoose.model('User', userSchema);

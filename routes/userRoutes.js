@@ -8,6 +8,8 @@ const userController = require('./../controllers/userController');
 // Auth
 
 router.post('/signup', authController.signup);
+router.post('/verifyOTP', authController.verifyOTP);
+router.post('/resendOTP', authController.resendOTP);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
 

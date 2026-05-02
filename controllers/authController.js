@@ -97,8 +97,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     }
 
     // Base allowed fields
-    const baseFields = ['name', 'email', 'password', 'passwordConfirm', 'phone' , 'role'];
-
+    const baseFields = ['name', 'email', 'password', 'passwordConfirm', 'phone', 'role'];
     let filteredObj = filterObject(req.body, ...baseFields);
 
     // 🔹 Handle freelancer profile
@@ -106,7 +105,6 @@ exports.signup = catchAsync(async (req, res, next) => {
         if (!req.body.freelancerProfile) {
             return next(new AppError('Freelancer profile is required', 400));
         }
-
         filteredObj.freelancerProfile = filterObject(
             req.body.freelancerProfile,
             'title',
@@ -123,7 +121,6 @@ exports.signup = catchAsync(async (req, res, next) => {
         if (!req.body.clientProfile) {
             return next(new AppError('Client profile is required', 400));
         }
-
         filteredObj.clientProfile = filterObject(
             req.body.clientProfile,
             'companyName',
@@ -133,14 +130,59 @@ exports.signup = catchAsync(async (req, res, next) => {
         );
     }
 
+    // 🔹 Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    filteredObj.otp = otp;
+    filteredObj.otpExpires = Date.now() + 10 * 60 * 1000;
+    filteredObj.isVerified = false;
+
+    // 🔹 Create User
     const newUser = await User.create(filteredObj);
 
-    // sending welcome email
-    await new Email(newUser, `faksdfhjjsfsfhasdfasdfj`).sendWelcome(); // *FIX LATER* should be url to home page of our website
-    
+    // 🔹 Send OTP Email
+    try {
+        await new Email(newUser, '').sendOTP(otp);
 
-    // assign user a token to log him in and sending response
-    signTokenAndSend(newUser, res, 201);
+        res.status(200).json({
+            status: 'success',
+            message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني',
+            email: newUser.email,
+        });
+    } catch (err) {
+        newUser.otp = undefined;
+        newUser.otpExpires = undefined;
+        await newUser.save({ validateBeforeSave: false });
+
+        return next(
+            new AppError('حدث خطأ أثناء إرسال البريد الإلكتروني. حاول مرة أخرى لاحقاً!', 500),
+        );
+    }
+});
+
+exports.verifyOTP = catchAsync(async (req, res, next) => {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({
+        email,
+        otp,
+        otpExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+        return next(new AppError('رمز التحقق غير صالح أو انتهت صلاحيته!', 400));
+    }
+
+    user.isVerified = true;
+    user.otp = undefined;
+    user.otpExpires = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    const url = `${req.protocol}://${req.get('host')}/`;
+    await new Email(user, url).sendWelcome();
+
+    signTokenAndSend(user, res, 200);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -155,11 +197,59 @@ exports.login = catchAsync(async (req, res, next) => {
     if (!user || !(await user.doPasswordsMatch(password, user.password))) {
         return next(new AppError('Incorrect email or password', 401)); // 401 -> Unauthorized
     }
+    if (!user.isVerified) {
+        return res.status(403).json({
+            status: 'fail',
+            message: 'حسابك غير مفعل، يرجى إدخال كود التحقق.',
+            actionRequired: 'VERIFY_OTP',
+            email: user.email,
+        });
+    }
 
     // assign user a token to log him in and sending response
     signTokenAndSend(user, res, 200);
 });
 
+exports.resendOTP = catchAsync(async (req, res, next) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return next(new AppError('Please provide your email', 400));
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return next(new AppError('لا يوجد حساب بهذا البريد الإلكتروني', 404));
+    }
+
+    if (user.isVerified) {
+        return next(new AppError('هذا الحساب مفعل بالفعل، يمكنك تسجيل الدخول', 400));
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.otpExpires = Date.now() + 10 * 60 * 1000;
+
+    await user.save({ validateBeforeSave: false });
+
+    try {
+        await new Email(user, '').sendOTP(otp);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'تم إرسال كود تحقق جديد إلى بريدك الإلكتروني',
+        });
+    } catch (err) {
+        user.otp = undefined;
+        user.otpExpires = undefined;
+        await user.save({ validateBeforeSave: false });
+
+        return next(
+            new AppError('حدث خطأ أثناء إرسال البريد الإلكتروني. حاول مرة أخرى لاحقاً!', 500),
+        );
+    }
+});
 exports.logout = (req, res) => {
     res.cookie('jwt', 'loggedOut', {
         expires: new Date(Date.now() + 10 * 1000), // cookie expires after 10 seconds

@@ -1,46 +1,46 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
 module.exports = class Email {
-  constructor(user, url) {
-    this.to        = user.email;
-    this.name = user.name.split(" ")[0] || user.name;
-    this.url       = url;
-    this.from      = `Masar Platform <${process.env.EMAIL_FROM}>`;
-  }
-
-  //  Mailtrap Only 
-  getTransport() {
-    return nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: process.env.EMAIL_PORT,
-      auth: {
-        user: process.env.EMAIL_USERNAME,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-  }
-
-  //  Send Code 
-  async send(subject, htmlContent) {
-    const emailOptions = {
-      from:    this.from,
-      to:      this.to,
-      subject,
-      html:    htmlContent,
-    };
-
-    try {
-      await this.getTransport().sendMail(emailOptions);
-      console.log(`✅ Email sent to: ${this.to}`);
-    } catch (err) {
-      console.error(`❌ Email failed: ${err.message}`);
-      throw err;
+    constructor(user, url) {
+        this.to = user.email;
+        this.name = user.name.split(' ')[0] || user.name;
+        this.url = url;
+        this.from = `Masar Platform <${process.env.EMAIL_FROM}>`;
     }
-  }
 
-  //  1. OTP Verification 
-  async sendOTP(otpCode) {
-    const html = `
+    //  Mailtrap Only
+    getTransport() {
+        return nodemailer.createTransport({
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT,
+            auth: {
+                user: process.env.EMAIL_USERNAME,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+    }
+
+    //  Send Code
+    async send(subject, htmlContent) {
+        const emailOptions = {
+            from: this.from,
+            to: this.to,
+            subject,
+            html: htmlContent,
+        };
+
+        try {
+            await this.getTransport().sendMail(emailOptions);
+            console.log(`✅ Email sent to: ${this.to}`);
+        } catch (err) {
+            console.error(`❌ Email failed: ${err.message}`);
+            throw err;
+        }
+    }
+
+    //  1. OTP Verification
+    async sendOTP(otpCode) {
+        const html = `
       <div style="max-width:500px;margin:auto;padding:40px;font-family:sans-serif;
                   border:1px solid #eee;border-radius:15px;background:#fff;text-align:center;">
         <div style="font-size:40px;margin-bottom:20px;">🔐</div>
@@ -53,18 +53,18 @@ module.exports = class Email {
         <hr style="border:0;border-top:1px solid #eee;margin:30px 0;">
         <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
       </div>`;
-    await this.send("رمز التحقق الخاص بك — Masar Platform 🔐", html);
-  }
+        await this.send('رمز التحقق الخاص بك — Masar Platform 🔐', html);
+    }
 
-  //  2. Welcome 
-  async sendWelcome() {
-    const html = `
+    //  2. Welcome
+    async sendWelcome() {
+        const html = `
       <div style="max-width:600px;margin:auto;border-top:6px solid #2563EB;
                   padding:40px 20px;font-family:sans-serif;background:#fdfdfd;
                   border-radius:8px;text-align:center;">
         <h1 style="color:#2563EB;">أهلاً بك في Masar 🚀</h1>
         <p style="font-size:16px;color:#555;line-height:1.7;">
-          مرحباً ${this.firstName}، يسعدنا انضمامك إلى منصة مسار —
+          مرحباً ${this.name}، يسعدنا انضمامك إلى منصة مسار —
           المنصة العربية المتخصصة في ربط أصحاب المشاريع بأفضل المستقلين.
         </p>
         <div style="margin:30px 0;">
@@ -77,12 +77,12 @@ module.exports = class Email {
         <hr style="border:0;border-top:1px solid #eee;margin:30px 0;">
         <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
       </div>`;
-    await this.send("أهلاً بك في Masar 🚀", html);
-  }
+        await this.send('أهلاً بك في Masar 🚀', html);
+    }
 
-  //  3. Password Reset 
-  async sendPasswordReset() {
-    const html = `
+    //  3. Password Reset
+    async sendPasswordReset() {
+        const html = `
       <div style="max-width:500px;margin:auto;padding:40px;font-family:sans-serif;
                   text-align:center;background:#fff;border-radius:15px;border:1px solid #eee;">
         <div style="font-size:40px;margin-bottom:20px;">🔑</div>
@@ -103,12 +103,12 @@ module.exports = class Email {
         <hr style="border:0;border-top:1px solid #eee;margin:30px 0;">
         <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
       </div>`;
-    await this.send("إعادة تعيين كلمة المرور — Masar 🔑", html);
-  }
+        await this.send('إعادة تعيين كلمة المرور — Masar 🔑', html);
+    }
 
-  // 4. Proposal Accepted 
-  async sendProposalAccepted(projectTitle) {
-    const html = `
+    // 4. Proposal Accepted
+    async sendProposalAccepted(projectTitle) {
+        const html = `
       <div style="max-width:500px;margin:auto;padding:40px;font-family:sans-serif;
                   text-align:center;background:#fff;border-radius:15px;border:1px solid #eee;">
         <div style="font-size:40px;margin-bottom:20px;">🎉</div>
@@ -127,12 +127,12 @@ module.exports = class Email {
         <hr style="border:0;border-top:1px solid #eee;margin:30px 0;">
         <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
       </div>`;
-    await this.send("تم قبول عرضك على Masar 🎉", html);
-  }
+        await this.send('تم قبول عرضك على Masar 🎉', html);
+    }
 
-  // 5. Payment Released 
-  async sendPaymentReleased(amount, milestoneTitle) {
-    const html = `
+    // 5. Payment Released
+    async sendPaymentReleased(amount, milestoneTitle) {
+        const html = `
       <div style="max-width:500px;margin:auto;padding:40px;font-family:sans-serif;
                   text-align:center;background:#fff;border-radius:15px;border:1px solid #eee;">
         <div style="font-size:40px;margin-bottom:20px;">💰</div>
@@ -152,6 +152,6 @@ module.exports = class Email {
         <hr style="border:0;border-top:1px solid #eee;margin:30px 0;">
         <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
       </div>`;
-    await this.send("تم إطلاق دفعتك على Masar 💰", html);
-  }
+        await this.send('تم إطلاق دفعتك على Masar 💰', html);
+    }
 };
