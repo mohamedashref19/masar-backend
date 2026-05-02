@@ -136,8 +136,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     const newUser = await User.create(filteredObj);
 
     // sending welcome email
-    const email = new Email(newUser, `faksdfhjjsfsfhasdfasdfj`); // *FIX LATER* should be url to home page of our website
-    email.sendWelcome();
+    await new Email(newUser, `faksdfhjjsfsfhasdfasdfj`).sendWelcome(); // *FIX LATER* should be url to home page of our website
+    
 
     // assign user a token to log him in and sending response
     signTokenAndSend(newUser, res, 201);
@@ -186,7 +186,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
     try {
         // sending the email to the user with the reset password token
-        const email = new Email(user, resetToken).sendPasswordReset(); // *FIX LATER* should be url to reset password page or something like that
+        await new Email(user, resetToken).sendPasswordReset(); // *FIX LATER* should be url to reset password page or something like that
 
         return res.status(200).json({
             status: 'success',
