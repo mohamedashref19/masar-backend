@@ -1,3 +1,4 @@
+// Modules
 const mongoose = require('mongoose');
 
 const projectSchema = new mongoose.Schema(
@@ -32,7 +33,7 @@ const projectSchema = new mongoose.Schema(
             type: Date,
             required: [true, 'Project must have a deadline'],
             validate: {
-                function(val) {
+                validator: function(val) {
                     return val > Date.now();
                 },
                 message: 'Deadline Must be in the future',
@@ -51,7 +52,7 @@ const projectSchema = new mongoose.Schema(
             default: 'open',
         },
     },
-    
+
     { timestamps: true },
 );
 

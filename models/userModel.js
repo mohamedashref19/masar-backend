@@ -1,7 +1,5 @@
-// models/User.js
+// Modules
 const mongoose = require('mongoose');
-
-// modules
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const validator = require('validator');

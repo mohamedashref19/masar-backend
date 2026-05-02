@@ -1,7 +1,7 @@
 // Models
 const User = require('./../models/userModel');
 
-// utils
+// Utils
 const filterObject = require('./../utils/filterObj');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');

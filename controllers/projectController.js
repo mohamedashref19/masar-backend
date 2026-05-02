@@ -1,14 +1,13 @@
 // Models
 const Project = require('./../models/projectModel');
 
-// utils
+// Utils
 const filterObject = require('./../utils/filterObj');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
-const Email = require('./../utils/email');
 const apiFeatures = require('./../utils/apiFeatures');
 
-// Modules
+
 
 exports.createProject = catchAsync(async (req, res, next) => {
     let filteredObj = filterObject(
@@ -51,7 +50,6 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 });
 
 exports.getProject = catchAsync(async (req, res, next) => {
-    console.log(req.params.projectId);
     const project = await Project.findOne({ _id: req.params.projectId });
 
     if (!project) return next(new AppError(`Project doesn't exist`, 404));
