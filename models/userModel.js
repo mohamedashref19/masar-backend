@@ -153,4 +153,20 @@ userSchema.pre('save', async function (next) {
     this.passwordConfirm = undefined;
 });
 
+// setting the time of last changed password
+userSchema.pre('save', function(next) {
+  if (!this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+
+  next();
+});
+
+
+
+// don't select users who have been soft deleted
+userSchema.pre(/^find/ , async function(){
+    this.find({active : {$ne : false}});
+})
+
 module.exports = mongoose.model('User', userSchema);
