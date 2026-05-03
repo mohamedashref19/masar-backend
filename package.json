@@ -1,8 +1,0 @@
-{
-  "name": "masar-platform",
-  "private": true,
-  "workspaces": [
-    "frontend",
-    "backend"
-  ]
-}
