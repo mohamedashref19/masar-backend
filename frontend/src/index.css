@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+:root {
+  /* ألوان منصة مسار */
+  --color-primary: #0f172a;
+  --color-secondary: #22c55e;
+  --color-accent: #a3e635;
+  --color-background: #0b0f19;
+}
