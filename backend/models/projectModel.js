@@ -51,16 +51,32 @@ const projectSchema = new mongoose.Schema(
             enum: ['open', 'in-progress', 'completed', 'cancelled'],
             default: 'open',
         },
+
+        assignedFreelancer: {
+            type: mongoose.Schema.ObjectId,
+            ref : 'User'
+        },
+
+        completedAt: Date,
+
+
     },
 
     { timestamps: true },
 );
 
-projectSchema.pre(/^find/, function () {
-    this.populate({
-        path: 'client',
-        select: 'name email profileImage',
-    });
+projectSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'client',
+    select: 'name email',
+  }).populate({
+    path: 'assignedFreelancer',
+    select: 'name email',
+  });
+
+  next();
 });
+
+
 
 module.exports = mongoose.model('Project', projectSchema);

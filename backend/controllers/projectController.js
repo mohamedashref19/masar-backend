@@ -109,3 +109,51 @@ exports.deleteProject = catchAsync(async (req, res, next) => {
         data: null,
     });
 });
+
+
+exports.completeProject = catchAsync(async (req, res, next) => {
+  const project = await Project.findById(req.params.projectId);
+
+  if (!project) return next(new AppError('Project not found', 404));
+
+  if (project.client._id.toString() !== req.user._id.toString()) {
+    return next(new AppError('You are not allowed to complete this project', 403));
+  }
+
+  if (project.status !== 'in-progress') {
+    return next(new AppError('Only in-progress projects can be completed', 400));
+  }
+
+  project.status = 'completed';
+  project.completedAt = Date.now();
+
+  await project.save();
+
+  res.status(200).json({
+    status: 'success',
+    project,
+  });
+});
+
+exports.cancelProject = catchAsync(async (req, res, next) => {
+  const project = await Project.findById(req.params.projectId);
+
+  if (!project) return next(new AppError('Project not found', 404));
+
+  if (project.client._id.toString() !== req.user._id.toString()) {
+    return next(new AppError('You are not allowed to cancel this project', 403));
+  }
+
+  if (project.status === 'completed') {
+    return next(new AppError('Completed projects cannot be cancelled', 400));
+  }
+
+  project.status = 'cancelled';
+
+  await project.save();
+
+  res.status(200).json({
+    status: 'success',
+    project,
+  });
+});

@@ -14,7 +14,23 @@ router
         projectController.createProject,
     )
     .get(projectController.getAllProjects);
+
+router.patch(
+    '/:projectId/complete',
+    authController.protect,
+    authController.restrictTo('client'),
+    projectController.completeProject,
+);
+
+router.patch(
+    '/:projectId/cancel',
+    authController.protect,
+    authController.restrictTo('client'),
+    projectController.cancelProject,
+);
+
 router.use('/:projectId/proposals', proposalRouter);
+
 router
     .route('/:projectId')
     .get(projectController.getProject)
