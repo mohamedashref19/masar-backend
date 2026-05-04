@@ -16,12 +16,24 @@ const cookieParser = require('cookie-parser');
 const userRouter = require(`./routes/userRoutes`);
 const proposalRouter = require(`./routes/proposalRoutes`);
 const projectRouter = require(`./routes/projectRoutes`);
+const reviewRouter = require('./routes/reviewRoutes');
 
 const app = express();
 
 //Security Middlewares
 app.use(helmet());
-app.use(cors());
+app.use(
+    cors({
+        // لازم نحدد رابط الفرونت إند بتاعك بالظبط
+        origin: 'http://localhost:5173',
+
+        // السطر ده هو اللي هيحل مشكلة الـ Credential
+        credentials: true,
+
+        methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+    }),
+);
 app.use(hpp());
 
 // Rate limiting
@@ -51,6 +63,8 @@ app.use(mongoSanitize());
 app.use(`/api/v1/users`, userRouter);
 app.use('/api/v1/proposals', proposalRouter);
 app.use(`/api/v1/projects`, projectRouter);
+app.use('/api/v1/reviews', reviewRouter);
+
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {
