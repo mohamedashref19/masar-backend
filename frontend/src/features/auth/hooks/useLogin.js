@@ -16,11 +16,23 @@ export const useLogin = () => {
     mutationFn: loginUser,
 
     onSuccess: (data) => {
-      toast.success("تم تسجيل الدخول بنجاح! أهلاً بك في مسار 🚀");
-      dispatch(setCredentials({ user: data.data.user, token: data.token }));
+      // 1. اطبع الداتا في الكونسول عشان تتأكد هي (data.user) ولا (data.data.user)
+      console.log("البيانات اللي راجعة من السيرفر:", data);
 
-      const destination = location.state?.from?.pathname || "/";
-      navigate(destination, { replace: true });
+      // 2. استخدم الـ Optional Chaining (?.) عشان لو الداتا ناقصة الكود ميكرشش
+      const user = data?.data?.user || data?.user;
+      const token = data?.token;
+
+      if (user && token) {
+        toast.success("تم تسجيل الدخول بنجاح! أهلاً بك في مسار 🚀");
+        dispatch(setCredentials({ user, token }));
+
+        const destination = location.state?.from?.pathname || "/";
+        navigate(destination, { replace: true });
+      } else {
+        // لو الداتا مش كاملة، ارمي إيرور عشان يروح للـ onError بدل ما ينجح عالفاضي
+        throw new Error("بيانات المستخدم غير مكتملة من السيرفر");
+      }
     },
 
     // ضفنا variables هنا عشان نقدر نوصل للبيانات اللي اليوزر بعتها (الإيميل والباسورد)

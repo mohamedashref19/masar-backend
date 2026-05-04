@@ -6,3 +6,5 @@ export { default as FreelancerDashboard } from "./FreelancerDashboard";
 export { default as ProjectsList } from "./ProjectsList";
 export { default as NotFound } from "./NotFound";
 export { default as VerifyOTP } from "./VerifyOtp";
+export { default as PostJob } from "./PostJob";
+export { default as ProjectDetails } from "./ProjectDetails";
