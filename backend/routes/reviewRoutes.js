@@ -17,4 +17,18 @@ router.get(
   reviewController.getFreelancerReviews
 );
 
+router.delete(
+  '/:reviewId',
+  authController.protect,
+  authController.restrictTo('client'),
+  reviewController.deleteReview
+);
+
+router.patch(
+  '/:reviewId',
+  authController.protect,
+  authController.restrictTo('client'),
+  reviewController.updateReview
+);
+
 module.exports = router;

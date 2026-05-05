@@ -44,7 +44,7 @@ exports.protect = catchAsync(async (req, res, next) => {
         token = req.get('Authorization').split(' ')[1];
     }
     // or cookie
-    else if (req.cookies.jwt) {
+    else if (req.cookies.jwt && req.cookies.jwt !== 'loggedOut') {
         token = req.cookies.jwt;
     }
 
@@ -269,7 +269,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     if (!user) return next(new AppError('No user with that email', 404)); // 404 -> Not Found
 
     const resetToken = await user.createPasswordResetToken();
-    console.log(resetToken);
 
     // saves the hashed reset token on the user document
     await user.save({ validateBeforeSave: false });
@@ -304,14 +303,14 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     });
 
     // Checking if user exists
-    if (!user) return next(new AppError('Token is invalid or has expired', 404)); // 404 -> Not Found
+    if (!user) return next(new AppError('Token is invalid or has expired', 400)); // 404 -> Not Found
 
     if (
         !req.body.password ||
         !req.body.passwordConfirm ||
         req.body.password !== req.body.passwordConfirm
     ) {
-        return next(new AppError('Please enter matching password and passwordConfirm', 401));
+        return next(new AppError('Please enter matching password and passwordConfirm', 400));
     }
 
     user.password = req.body.password;

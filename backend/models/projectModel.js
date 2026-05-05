@@ -73,8 +73,6 @@ projectSchema.pre(/^find/, function (next) {
     path: 'assignedFreelancer',
     select: 'name email',
   });
-
-  next();
 });
 
 

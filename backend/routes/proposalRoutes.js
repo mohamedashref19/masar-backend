@@ -10,7 +10,7 @@ router.use(authController.protect);
 router
     .route('/')
     .post(authController.restrictTo('freelancer'), proposalController.createProposal)
-    .get(authController.restrictTo('client'), proposalController.getProjectProposal);
+    .get(authController.restrictTo('client'), proposalController.getProjectProposals);
 
 router.patch('/:id/accept', authController.restrictTo('client'), proposalController.acceptProposal);
 router.patch('/:id/reject', authController.restrictTo('client'), proposalController.rejectProposal);

@@ -7,39 +7,52 @@ const proposalSchema = new mongoose.Schema(
             ref: 'Project',
             required: [true, 'Proposal must belong to a project.'],
         },
+
         freelancer: {
             type: mongoose.Schema.ObjectId,
             ref: 'User',
             required: [true, 'Proposal must belong to a freelancer.'],
         },
+
         coverLetter: {
             type: String,
             required: [true, 'Please provide a cover letter.'],
         },
+
         price: {
             type: Number,
             required: [true, 'Please provide your proposed price.'],
+            min: [1, 'Price must be greater than 0'],
         },
+
         duration: {
             type: Number,
             required: [true, 'Please provide estimated duration in days.'],
+            min: [1, 'Duration must be at least 1 day'],
         },
+
         status: {
             type: String,
             enum: ['pending', 'accepted', 'rejected'],
             default: 'pending',
         },
+
     },
     { timestamps: true },
 );
-//make sure not freelance apply same proposal more one
+
+//make sure freelancer can apply only once to the same project
 proposalSchema.index({ project: 1, freelancer: 1 }, { unique: true });
-//to bring  freelance with proposal
+
+//to bring freelance with proposal
 proposalSchema.pre(/^find/, function () {
     this.populate({
         path: 'freelancer',
         select: 'name profileImage freelancerProfile',
     });
 });
+
+
+
 
 module.exports = mongoose.model('Proposal', proposalSchema);
