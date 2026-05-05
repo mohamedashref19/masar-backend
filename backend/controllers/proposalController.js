@@ -11,14 +11,21 @@ exports.createProposal = catchAsync(async (req, res, next) => {
     const project = await Project.findById(projectId);
 
     // checking if the project exist
-    if(!project)
-        return next(new AppError(`The project doesn't exist` , 404));
-    
+    if (!project) return next(new AppError(`The project doesn't exist`, 404));
+
     // checking if the project isn't open to take proposals anymore
-    console.log(project.status)
-    if( project.status !== 'open')
-        return next(new AppError(`You can't add a proposal to this project anymore` , 400));
-    
+    console.log(project.status);
+    if (project.status !== 'open')
+        return next(new AppError(`You can't add a proposal to this project anymore`, 400));
+    // checking if the freelancer already applied to this project
+    const existingProposal = await Proposal.findOne({
+        project: projectId,
+        freelancer: freelancerId,
+    });
+
+    if (existingProposal) {
+        return next(new AppError('You have already applied to this project', 400));
+    }
 
     const newProposal = await Proposal.create({
         project: projectId,
@@ -40,7 +47,7 @@ exports.getProjectProposals = catchAsync(async (req, res, next) => {
     if (!project) return next(new AppError('Project not found', 404));
 
     if (clientId.toString() !== project.client._id.toString())
-        return next(new AppError(`You are not authorized to access this information` , 403));
+        return next(new AppError(`You are not authorized to access this information`, 403));
 
     const proposals = await Proposal.find({ project: req.params.projectId });
 
@@ -52,77 +59,65 @@ exports.getProjectProposals = catchAsync(async (req, res, next) => {
 });
 
 exports.acceptProposal = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.projectId);
+    // 1) Find the proposal and populate the project so we can check the client
+    const proposal = await Proposal.findById(req.params.id).populate('project');
 
-  if (!project) {
-    return next(new AppError('Project not found', 404));
-  }
+    if (!proposal) {
+        return next(new AppError('No proposal found with that ID', 404));
+    }
 
-  if (project.client._id.toString() !== req.user._id.toString()) {
-    return next(new AppError('You are not authorized to accept this proposal', 403));
-  }
+    // 2) Check if the user making the request is the client who owns the project
+    if (proposal.project.client._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You are not authorized to accept this proposal', 403));
+    }
 
-  if (project.status !== 'open') {
-    return next(new AppError('This project is no longer open', 400));
-  }
+    // 3) Check if the project is still open
+    if (proposal.project.status !== 'open') {
+        return next(new AppError('This project is no longer open', 400));
+    }
 
-  const proposal = await Proposal.findById(req.params.id);
+    // 4) Change Proposal status
+    proposal.status = 'accepted';
+    await proposal.save();
 
-  if (!proposal) {
-    return next(new AppError('No proposal found with that ID', 404));
-  }
+    // 5) Change Project status and assign freelancer
+    const project = await Project.findById(proposal.project._id);
+    project.status = 'in-progress';
+    project.assignedFreelancer = proposal.freelancer; // from the proposal
+    await project.save();
 
-  if (proposal.project._id.toString() !== req.params.projectId) {
-    return next(new AppError('This proposal does not belong to this project', 400));
-  }
+    // 6) Reject ALL other proposals for this specific project
+    await Proposal.updateMany(
+        {
+            project: project._id,
+            _id: { $ne: proposal._id }, // exclude the accepted one
+        },
+        { status: 'rejected' },
+    );
 
-  proposal.status = 'accepted';
-  await proposal.save();
-
-  project.status = 'in-progress';
-  project.assignedFreelancer = proposal.freelancer;
-  await project.save();
-
-  await Proposal.updateMany(
-    {
-      project: req.params.projectId,
-      _id: { $ne: req.params.id },
-    },
-    { status: 'rejected' }
-  );
-
-  res.status(200).json({
-    status: 'success',
-    data: { proposal },
-  });
+    res.status(200).json({
+        status: 'success',
+        message: 'Proposal accepted successfully. Project is now in progress.',
+        data: { proposal },
+    });
 });
 
 exports.rejectProposal = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.projectId);
+    const proposal = await Proposal.findById(req.params.id).populate('project');
 
-  if (!project) {
-    return next(new AppError('Project not found', 404));
-  }
+    if (!proposal) {
+        return next(new AppError('No proposal found', 404));
+    }
 
-  if (project.client._id.toString() !== req.user._id.toString()) {
-    return next(new AppError('You are not authorized to reject this proposal', 403));
-  }
+    if (proposal.project.client._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You are not authorized to reject this proposal', 403));
+    }
 
-  const proposal = await Proposal.findById(req.params.id);
+    proposal.status = 'rejected';
+    await proposal.save();
 
-  if (!proposal) {
-    return next(new AppError('No proposal found', 404));
-  }
-
-  if (proposal.project._id.toString() !== req.params.projectId) {
-    return next(new AppError('This proposal does not belong to this project', 400));
-  }
-
-  proposal.status = 'rejected';
-  await proposal.save();
-
-  res.status(200).json({
-    status: 'success',
-    data: { proposal },
-  });
+    res.status(200).json({
+        status: 'success',
+        data: { proposal },
+    });
 });
