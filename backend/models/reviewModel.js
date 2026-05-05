@@ -1,45 +1,76 @@
 const mongoose = require('mongoose');
 
+// Models
+const User = require('./userModel');
+
 const reviewSchema = new mongoose.Schema(
-  {
-    project: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Project',
-      required: true,
-      unique: true,
-    },
+    {
+        project: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'Project',
+            required: true,
+            unique: true,
+        },
 
-    client: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+        client: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+            required: true,
+        },
 
-    freelancer: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
-      required: true,
-    },
+        freelancer: {
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+            required: true,
+        },
 
-    rating: {
-      type: Number,
-      required: true,
-      min: 1,
-      max: 5,
-    },
+        rating: {
+            type: Number,
+            required: true,
+            min: 1,
+            max: 5,
+        },
 
-    comment: {
-      type: String,
-      trim: true,
+        comment: {
+            type: String,
+            trim: true,
+        },
     },
-  },
-  { timestamps: true }
+    { timestamps: true },
 );
 
 reviewSchema.pre(/^find/, function (next) {
-  this.populate('client', 'name').populate('freelancer', 'name');
+    this.populate('client', 'name').populate('freelancer', 'name');
+});
 
-  next();
+// middleware to update average rating of freelancers
+reviewSchema.statics.calcAverageRating = async function (freelancerId) {
+  const stats = await this.aggregate([
+    {
+      $match: { freelancer: freelancerId },
+    },
+    {
+      $group: {
+        _id: '$freelancer',
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  await User.findByIdAndUpdate(freelancerId, {
+    'freelancerProfile.rating': stats.length > 0 ? stats[0].avgRating : 0,
+  });
+};
+
+// Middlewares to update freelancer average after review
+reviewSchema.post('save', async function () {
+  await this.constructor.calcAverageRating(this.freelancer);
+});
+
+reviewSchema.post(/^findOneAnd/, async function (doc) {
+  if (doc) {
+    await doc.constructor.calcAverageRating(doc.freelancer);
+  }
 });
 
 module.exports = mongoose.model('Review', reviewSchema);
