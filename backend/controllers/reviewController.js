@@ -51,3 +51,51 @@ exports.getFreelancerReviews = catchAsync(async (req, res, next) => {
         reviews,
     });
 });
+
+exports.updateReview = catchAsync(async (req, res, next) => {
+    const review = await Review.findById(req.params.reviewId);
+
+    if (!review) {
+        return next(new AppError('Review not found', 404));
+    }
+
+    if (review.client.toString() !== req.user._id.toString()) {
+        return next(new AppError('You can only update your own review', 403));
+    }
+
+    const updatedReview = await Review.findByIdAndUpdate(
+        req.params.reviewId,
+        {
+            rating: req.body.rating,
+            comment: req.body.comment,
+        },
+        {
+            new: true,
+            runValidators: true,
+        },
+    );
+
+    res.status(200).json({
+        status: 'success',
+        review: updatedReview,
+    });
+});
+
+exports.deleteReview = catchAsync(async (req, res, next) => {
+    const review = await Review.findById(req.params.reviewId);
+
+    if (!review) {
+        return next(new AppError('Review not found', 404));
+    }
+
+    if (review.client.toString() !== req.user._id.toString()) {
+        return next(new AppError('You can only delete your own review', 403));
+    }
+
+    await Review.findByIdAndDelete(req.params.reviewId);
+
+    res.status(204).json({
+        status: 'success',
+        data: null,
+    });
+});
