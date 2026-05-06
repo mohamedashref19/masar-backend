@@ -26,6 +26,10 @@ exports.createReview = catchAsync(async (req, res, next) => {
         return next(new AppError('Project has no assigned freelancer', 400));
     }
 
+    const existingReview = await Review.findOne({ project });
+
+    if (existingReview) return next(new AppError('This project already has a review', 400));
+
     const review = await Review.create({
         project,
         client: req.user._id,
@@ -63,6 +67,9 @@ exports.updateReview = catchAsync(async (req, res, next) => {
         return next(new AppError('You can only update your own review', 403));
     }
 
+    if (!req.body.rating && !req.body.comment)
+        return next(new AppError('Please provide rating or comment to update', 400));
+
     const updatedReview = await Review.findByIdAndUpdate(
         req.params.reviewId,
         {
@@ -89,7 +96,7 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
     }
 
     if (review.client._id.toString() !== req.user._id.toString()) {
-        return next(new AppError('You can only update your own review', 403));
+        return next(new AppError('You can only delete your own review', 403));
     }
 
     await Review.findByIdAndDelete(req.params.reviewId);

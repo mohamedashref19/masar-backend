@@ -18,7 +18,7 @@ router.patch('/resetPassword/:token', authController.resetPassword);
 router.get('/freelancers', userController.getAllFreelancers);
 router.get('/freelancers/:id', userController.getFreelancer);
 
-// // User
+// User
 
 router.get('/me', authController.protect, userController.getMe);
 router.patch('/updateMe', authController.protect, userController.updateMe);

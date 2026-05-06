@@ -21,6 +21,7 @@ const signTokenAndSend = (user, res, statusCode) => {
         expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
         httpOnly: true, // to prevent the front end from accessing or modifying the cookie
         secure: process.env.NODE_ENV === 'production', // https only in prod
+        sameSite: 'Lax',
     };
 
     // 🔹 send cookie
@@ -31,8 +32,10 @@ const signTokenAndSend = (user, res, statusCode) => {
 
     res.status(statusCode).json({
         status: 'success',
-        token, // keep it for now (useful for testing)
-        user,
+        data: {
+            token,
+            user,
+        },
     });
 };
 
@@ -147,7 +150,9 @@ exports.signup = catchAsync(async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني',
-            email: newUser.email,
+            data: {
+                email: newUser.email,
+            },
         });
     } catch (err) {
         newUser.otp = undefined;
@@ -201,8 +206,10 @@ exports.login = catchAsync(async (req, res, next) => {
         return res.status(403).json({
             status: 'fail',
             message: 'حسابك غير مفعل، يرجى إدخال كود التحقق.',
-            actionRequired: 'VERIFY_OTP',
-            email: user.email,
+            data: {
+                actionRequired: 'VERIFY_OTP',
+                email: user.email,
+            },
         });
     }
 
@@ -239,6 +246,7 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'تم إرسال كود تحقق جديد إلى بريدك الإلكتروني',
+            data: null
         });
     } catch (err) {
         user.otp = undefined;
@@ -259,6 +267,7 @@ exports.logout = (req, res) => {
     res.status(200).json({
         status: 'success',
         message: 'Logged out successfully',
+        data: null
     });
 };
 
@@ -280,6 +289,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         return res.status(200).json({
             status: 'success',
             message: 'Please check your email for reset password token',
+            data: null
         });
     } catch (err) {
         user.resetPasswordToken = undefined;

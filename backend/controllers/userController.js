@@ -13,11 +13,11 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 exports.getMe = catchAsync(async (req, res, next) => {
-    const user = await User.findOne({ _id: req.user._id });
+    const user = await User.findById({ _id: req.user._id });
 
     return res.status(200).json({
         status: 'success',
-        user,
+        data: { user },
     });
 });
 
@@ -51,9 +51,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         returnDocument: 'after',
     });
 
-    res.status(200).json({
+    return res.status(200).json({
         status: 'success',
-        user,
+        data: { user },
     });
 });
 
@@ -92,7 +92,8 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
 
     return res.status(200).json({
         status: 'success',
-        message: 'Password Changed successfully',
+        message: 'Password changed successfully',
+        data: null,
     });
 });
 
@@ -126,7 +127,9 @@ exports.getAllFreelancers = catchAsync(async (req, res, next) => {
         .limitFields()
         .paginate();
 
-    const freelancers = await features.query;
+    const freelancers = await features.query.select(
+        '-passwordChangedAt -__v -otp -otpExpires -resetPasswordToken -passwordResetExpires',
+    );
 
     res.status(200).json({
         status: 'success',
@@ -139,7 +142,7 @@ exports.getFreelancer = catchAsync(async (req, res, next) => {
     const freelancer = await User.findOne({
         _id: req.params.id,
         role: 'freelancer',
-    }).select('-passwordChangedAt -__v');
+    }).select('-passwordChangedAt -__v -otp -otpExpires -resetPasswordToken -passwordResetExpires');
 
     if (!freelancer) {
         return next(new AppError('No freelancer found with that ID', 404));

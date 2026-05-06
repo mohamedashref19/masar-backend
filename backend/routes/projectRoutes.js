@@ -15,6 +15,14 @@ router
     )
     .get(projectController.getAllProjects);
 
+    
+router.get(
+    '/my-projects',
+    authController.protect,
+    authController.restrictTo('client'),
+    projectController.getMyProjects,
+);
+
 router.patch(
     '/:projectId/complete',
     authController.protect,

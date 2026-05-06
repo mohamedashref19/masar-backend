@@ -13,10 +13,13 @@ exports.createProposal = catchAsync(async (req, res, next) => {
     // checking if the project exist
     if (!project) return next(new AppError(`The project doesn't exist`, 404));
 
+    if (project.client._id.toString() === req.user._id.toString())
+        return next(new AppError('You cannot apply to your own project', 400));
+
     // checking if the project isn't open to take proposals anymore
-    console.log(project.status);
     if (project.status !== 'open')
         return next(new AppError(`You can't add a proposal to this project anymore`, 400));
+
     // checking if the freelancer already applied to this project
     const existingProposal = await Proposal.findOne({
         project: projectId,
@@ -66,10 +69,17 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
         return next(new AppError('No proposal found with that ID', 404));
     }
 
+    if (!proposal.project)
+        return next(new AppError('Project related to this proposal no longer exists', 404));
+
     // 2) Check if the user making the request is the client who owns the project
     if (proposal.project.client._id.toString() !== req.user._id.toString()) {
         return next(new AppError('You are not authorized to accept this proposal', 403));
     }
+
+    // checking if proposal status is pending
+    if (proposal.status !== 'pending')
+        return next(new AppError('Only pending proposals can be accepted', 400));
 
     // 3) Check if the project is still open
     if (proposal.project.status !== 'open') {
@@ -108,6 +118,9 @@ exports.rejectProposal = catchAsync(async (req, res, next) => {
     if (!proposal) {
         return next(new AppError('No proposal found', 404));
     }
+
+    if (!proposal.project)
+        return next(new AppError('Project related to this proposal no longer exists', 404));
 
     if (proposal.project.client._id.toString() !== req.user._id.toString()) {
         return next(new AppError('You are not authorized to reject this proposal', 403));
