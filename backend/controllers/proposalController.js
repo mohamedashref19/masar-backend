@@ -112,7 +112,9 @@ exports.rejectProposal = catchAsync(async (req, res, next) => {
     if (proposal.project.client._id.toString() !== req.user._id.toString()) {
         return next(new AppError('You are not authorized to reject this proposal', 403));
     }
-
+    if (proposal.status !== 'pending') {
+        return next(new AppError('You can only reject pending proposals', 400));
+    }
     proposal.status = 'rejected';
     await proposal.save();
 

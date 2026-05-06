@@ -36,7 +36,7 @@ exports.createReview = catchAsync(async (req, res, next) => {
 
     res.status(201).json({
         status: 'success',
-        review,
+        data: { review },
     });
 });
 
@@ -47,8 +47,8 @@ exports.getFreelancerReviews = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        length: reviews.length,
-        reviews,
+        results: reviews.length,
+        data: { reviews },
     });
 });
 
@@ -59,7 +59,7 @@ exports.updateReview = catchAsync(async (req, res, next) => {
         return next(new AppError('Review not found', 404));
     }
 
-    if (review.client.toString() !== req.user._id.toString()) {
+    if (review.client._id.toString() !== req.user._id.toString()) {
         return next(new AppError('You can only update your own review', 403));
     }
 
@@ -77,7 +77,7 @@ exports.updateReview = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        review: updatedReview,
+        data: { review: updatedReview },
     });
 });
 
@@ -88,8 +88,8 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
         return next(new AppError('Review not found', 404));
     }
 
-    if (review.client.toString() !== req.user._id.toString()) {
-        return next(new AppError('You can only delete your own review', 403));
+    if (review.client._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You can only update your own review', 403));
     }
 
     await Review.findByIdAndDelete(req.params.reviewId);

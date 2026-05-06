@@ -16,7 +16,7 @@ exports.createProject = catchAsync(async (req, res, next) => {
         'skillsRequired',
         'budget',
         'deadline',
-        'status',
+        // 'status',
     );
     filteredObj.client = req.user._id;
 
@@ -24,7 +24,7 @@ exports.createProject = catchAsync(async (req, res, next) => {
 
     return res.status(201).json({
         status: 'success',
-        project,
+        data: { project },
     });
 });
 
@@ -43,7 +43,7 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
     return res.status(200).json({
         status: 'success',
         length: projects.length,
-        data: projects,
+        data: { projects },
     });
 });
 
@@ -54,7 +54,7 @@ exports.getProject = catchAsync(async (req, res, next) => {
 
     return res.status(200).json({
         status: 'success',
-        data: project,
+        data: { project },
     });
 });
 
@@ -77,7 +77,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
         'skillsRequired',
         'budget',
         'deadline',
-        'status',
+        //'status',
     );
 
     const updatedProject = await Project.findByIdAndUpdate(req.params.projectId, filteredObj, {
@@ -87,7 +87,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
 
     res.status(200).json({
         status: 'success',
-        project: updatedProject,
+        data: { project: updatedProject },
     });
 });
 
@@ -110,50 +110,49 @@ exports.deleteProject = catchAsync(async (req, res, next) => {
     });
 });
 
-
 exports.completeProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.projectId);
+    const project = await Project.findById(req.params.projectId);
 
-  if (!project) return next(new AppError('Project not found', 404));
+    if (!project) return next(new AppError('Project not found', 404));
 
-  if (project.client._id.toString() !== req.user._id.toString()) {
-    return next(new AppError('You are not allowed to complete this project', 403));
-  }
+    if (project.client._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You are not allowed to complete this project', 403));
+    }
 
-  if (project.status !== 'in-progress') {
-    return next(new AppError('Only in-progress projects can be completed', 400));
-  }
+    if (project.status !== 'in-progress') {
+        return next(new AppError('Only in-progress projects can be completed', 400));
+    }
 
-  project.status = 'completed';
-  project.completedAt = Date.now();
+    project.status = 'completed';
+    project.completedAt = Date.now();
 
-  await project.save();
+    await project.save();
 
-  res.status(200).json({
-    status: 'success',
-    project,
-  });
+    res.status(200).json({
+        status: 'success',
+        data: { project },
+    });
 });
 
 exports.cancelProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.projectId);
+    const project = await Project.findById(req.params.projectId);
 
-  if (!project) return next(new AppError('Project not found', 404));
+    if (!project) return next(new AppError('Project not found', 404));
 
-  if (project.client._id.toString() !== req.user._id.toString()) {
-    return next(new AppError('You are not allowed to cancel this project', 403));
-  }
+    if (project.client._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You are not allowed to cancel this project', 403));
+    }
 
-  if (project.status === 'completed') {
-    return next(new AppError('Completed projects cannot be cancelled', 400));
-  }
+    if (project.status === 'completed' || project.status === 'cancelled') {
+        return next(new AppError('This project cannot be cancelled', 400));
+    }
 
-  project.status = 'cancelled';
+    project.status = 'cancelled';
 
-  await project.save();
+    await project.save();
 
-  res.status(200).json({
-    status: 'success',
-    project,
-  });
+    res.status(200).json({
+        status: 'success',
+        data: { project },
+    });
 });
