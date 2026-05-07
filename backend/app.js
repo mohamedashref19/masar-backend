@@ -17,6 +17,7 @@ const userRouter = require(`./routes/userRoutes`);
 const proposalRouter = require(`./routes/proposalRoutes`);
 const projectRouter = require(`./routes/projectRoutes`);
 const reviewRouter = require('./routes/reviewRoutes');
+const chatRouter = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -64,7 +65,7 @@ app.use(`/api/v1/users`, userRouter);
 app.use('/api/v1/proposals', proposalRouter);
 app.use(`/api/v1/projects`, projectRouter);
 app.use('/api/v1/reviews', reviewRouter);
-
+app.use('/api/v1/chat', chatRouter);
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {
