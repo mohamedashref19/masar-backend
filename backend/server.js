@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-
+const http = require('http');
+const { Server } = require('socket.io');
 dotenv.config({ path: './config.env' });
 
 const app = require('./app');
@@ -16,7 +17,22 @@ mongoose
     .then(() => console.log('DB connection successful!'))
     .catch((err) => console.log('DB connection FAILED!!', err));
 
+const server = http.createServer(app);
+
+// Socket.io
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+    },
+});
+
+// ─── Chat Socket Logic
+const chatSocket = require('./sockets/chatSocket');
+chatSocket(io);
+
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`App running on port ${port}...`);
+
+server.listen(port, () => {
+    console.log(`App running on port ${port}... 🚀`);
 });
