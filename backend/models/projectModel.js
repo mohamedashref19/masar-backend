@@ -54,27 +54,30 @@ const projectSchema = new mongoose.Schema(
 
         assignedFreelancer: {
             type: mongoose.Schema.ObjectId,
-            ref : 'User'
+            ref: 'User',
         },
 
         completedAt: Date,
-
-
     },
 
     { timestamps: true },
 );
 
 projectSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: 'client',
-    select: 'name email',
-  }).populate({
-    path: 'assignedFreelancer',
-    select: 'name email',
-  });
+    this.populate({
+        path: 'client',
+        select: 'name email',
+    }).populate({
+        path: 'assignedFreelancer',
+        select: 'name email',
+    });
 });
 
-
+projectSchema.pre('findOneAndDelete', async function (next) {
+    const docToUpdate = await this.model.findOne(this.getQuery());
+    if (docToUpdate) {
+        await mongoose.model('Proposal').deleteMany({ project: docToUpdate._id });
+    }
+});
 
 module.exports = mongoose.model('Project', projectSchema);

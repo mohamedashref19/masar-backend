@@ -136,3 +136,22 @@ exports.rejectProposal = catchAsync(async (req, res, next) => {
         data: { proposal },
     });
 });
+
+exports.getMyProposals = catchAsync(async (req, res, next) => {
+    const freelancerId = req.user._id;
+    let proposals = await Proposal.find({ freelancer: freelancerId })
+        .populate({
+            path: 'project',
+            select: 'title budget category status',
+        })
+        .populate({ path: 'freelancer', select: '_id' })
+        .sort('-createdAt');
+    proposals = proposals.filter((p) => p.project !== null);
+    res.status(200).json({
+        status: 'success',
+        results: proposals.length,
+        data: {
+            proposals,
+        },
+    });
+});
