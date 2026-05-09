@@ -12,6 +12,12 @@ router
     .post(authController.restrictTo('freelancer'), proposalController.createProposal)
     .get(authController.restrictTo('client'), proposalController.getProjectProposals);
 
+router.get(
+    '/my-proposals',
+    authController.restrictTo('freelancer'),
+    proposalController.getMyProposals,
+);
+
 router.patch('/:id/accept', authController.restrictTo('client'), proposalController.acceptProposal);
 router.patch('/:id/reject', authController.restrictTo('client'), proposalController.rejectProposal);
 
