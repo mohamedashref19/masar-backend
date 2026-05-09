@@ -5,6 +5,7 @@ const router = express.Router();
 const authController = require('./../controllers/authController');
 const projectController = require('./../controllers/projectController');
 const proposalRouter = require('./proposalRoutes');
+const milestoneRouter = require('./milestoneRoutes');
 
 router
     .route('/')
@@ -38,6 +39,8 @@ router.patch(
 );
 
 router.use('/:projectId/proposals', proposalRouter);
+router.use('/:projectId/milestones', milestoneRouter);
+
 
 router
     .route('/:projectId')

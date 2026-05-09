@@ -18,6 +18,10 @@ const proposalRouter = require(`./routes/proposalRoutes`);
 const projectRouter = require(`./routes/projectRoutes`);
 const reviewRouter = require('./routes/reviewRoutes');
 const chatRouter = require('./routes/chatRoutes');
+const paymentRouter = require('./routes/paymentRoutes');
+
+// Controllers
+const paymentController = require('./controllers/paymentController');
 
 const app = express();
 
@@ -50,6 +54,13 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+
+app.post(
+  '/api/v1/webhooks/stripe',
+  express.raw({ type: 'application/json' }),
+  paymentController.stripeWebhook
+);
+
 //  Body Parser
 app.use(express.json({ limit: '10kb' }));
 
@@ -66,6 +77,7 @@ app.use('/api/v1/proposals', proposalRouter);
 app.use(`/api/v1/projects`, projectRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/chat', chatRouter);
+app.use('/api/v1/payments', paymentRouter);
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {
