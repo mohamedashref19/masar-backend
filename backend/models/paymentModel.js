@@ -28,7 +28,7 @@ const paymentSchema = new mongoose.Schema(
 
     amount: {
       type: Number,
-      required: [true, 'Payment must have an amount'],
+      required: true,
       min: [1, 'Amount must be greater than 0'],
     },
 
@@ -37,31 +37,29 @@ const paymentSchema = new mongoose.Schema(
       default: 'usd',
     },
 
-    stripeSessionId: {
-      type: String,
-    },
-
-    stripePaymentIntentId: {
-      type: String,
-    },
+    stripeSessionId: String,
+    stripePaymentIntentId: String,
 
     status: {
       type: String,
-      enum: ['pending', 'paid', 'failed', 'refunded'],
+      enum: ['pending', 'paid', 'failed', 'released', 'refunded'],
       default: 'pending',
     },
 
+    stripeTransferId: String,
+
+    platformFee: {
+      type: Number,
+      default: 0,
+    },
+
     paidAt: Date,
+    releasedAt: Date,
   },
   { timestamps: true }
 );
 
-
-
-
-paymentSchema.pre(/^find/, function () {
-  this.populate('client', 'name email')
-      .populate('freelancer', 'name email');
-});
+paymentSchema.index({ stripeSessionId: 1 });
+paymentSchema.index({ milestone: 1 });
 
 module.exports = mongoose.model('Payment', paymentSchema);

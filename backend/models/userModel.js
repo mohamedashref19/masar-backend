@@ -115,18 +115,28 @@ const userSchema = new mongoose.Schema(
 
         resetPasswordToken: {
             type: String,
-            select: false
+            select: false,
         },
 
         passwordResetExpires: {
             type: Date,
-            select: false
+            select: false,
         },
 
         active: {
             type: Boolean,
             default: true,
             select: false,
+        },
+
+        stripeAccountId: {
+            type: String,
+            select: false,
+        },
+
+        stripeOnboardingComplete: {
+            type: Boolean,
+            default: false,
         },
     },
 

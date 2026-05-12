@@ -17,6 +17,19 @@ router
     );
 
 
+router.patch(
+  '/:milestoneId/submit',
+  authController.protect,
+  authController.restrictTo('freelancer'),
+  milestoneController.submitMilestone
+);
+
+router.patch(
+  '/:milestoneId/approve',
+  authController.protect,
+  authController.restrictTo('client'),
+  milestoneController.approveMilestone
+);
 
 
 

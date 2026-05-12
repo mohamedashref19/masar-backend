@@ -19,6 +19,7 @@ const projectRouter = require(`./routes/projectRoutes`);
 const reviewRouter = require('./routes/reviewRoutes');
 const chatRouter = require('./routes/chatRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
+const stripeConnectRouter = require('./routes/stripeConnectRoutes');
 
 // Controllers
 const paymentController = require('./controllers/paymentController');
@@ -39,7 +40,7 @@ app.use(
         allowedHeaders: ['Content-Type', 'Authorization'],
     }),
 );
-app.use(hpp());
+
 
 // Rate limiting
 const limiter = rateLimit({
@@ -64,6 +65,8 @@ app.post(
 //  Body Parser
 app.use(express.json({ limit: '10kb' }));
 
+app.use(hpp());
+
 // cookie parser
 app.use(cookieParser(process.env.JWT_COOKIE_SECRET));
 
@@ -78,6 +81,7 @@ app.use(`/api/v1/projects`, projectRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/chat', chatRouter);
 app.use('/api/v1/payments', paymentRouter);
+app.use('/api/v1/stripe-connect', stripeConnectRouter);
 
 // Undefined Routes
 app.all(/(.*)/, (req, res, next) => {

@@ -60,6 +60,10 @@ const milestoneSchema = new mongoose.Schema(
 );
 
 
+milestoneSchema.index({ project: 1 });
+milestoneSchema.index({ client: 1 });
+milestoneSchema.index({ freelancer: 1 });
+
 // 🔹 Populate references
 milestoneSchema.pre(/^find/, function () {
   this.populate('client', 'name email')

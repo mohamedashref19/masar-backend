@@ -48,9 +48,10 @@ exports.getProjectMilestones = catchAsync(async (req, res, next) => {
 
     if (
         project.client._id.toString() !== req.user._id.toString() &&
-        (!project.assignedFreelancer || project.assignedFreelancer._id.toString() !== req.user._id.toString())
-    ) return next(new AppError('You are not authorized', 403));
-    
+        (!project.assignedFreelancer ||
+            project.assignedFreelancer._id.toString() !== req.user._id.toString())
+    )
+        return next(new AppError('You are not authorized', 403));
 
     const milestones = await Milestone.find({ project: project._id });
 
@@ -61,8 +62,60 @@ exports.getProjectMilestones = catchAsync(async (req, res, next) => {
             data: { milestones },
         });
     }
+
     return res.status(200).json({
         status: 'success',
+        results: milestones.length,
         data: { milestones },
+    });
+});
+
+exports.submitMilestone = catchAsync(async (req, res, next) => {
+    const milestone = await Milestone.findById(req.params.milestoneId);
+
+    if (!milestone) {
+        return next(new AppError('No milestone found with that ID', 404));
+    }
+
+    if (milestone.freelancer._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You are not authorized to submit this milestone', 403));
+    }
+
+    if (milestone.status !== 'funded') {
+        return next(new AppError('Only funded milestones can be submitted', 400));
+    }
+
+    milestone.status = 'submitted';
+    milestone.submittedAt = Date.now();
+    await milestone.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: { milestone },
+    });
+});
+
+exports.approveMilestone = catchAsync(async (req, res, next) => {
+    const milestone = await Milestone.findById(req.params.milestoneId);
+
+    if (!milestone) {
+        return next(new AppError('No milestone found with that ID', 404));
+    }
+
+    if (milestone.client._id.toString() !== req.user._id.toString()) {
+        return next(new AppError('You are not authorized to approve this milestone', 403));
+    }
+
+    if (milestone.status !== 'submitted') {
+        return next(new AppError('Only submitted milestones can be approved', 400));
+    }
+
+    milestone.status = 'approved';
+    milestone.approvedAt = Date.now();
+    await milestone.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: { milestone },
     });
 });
