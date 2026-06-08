@@ -1,6 +1,8 @@
 const Proposal = require('./../models/proposalModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const Email = require('./../utils/email');
+const User = require('./../models/userModel');
 
 // Models
 const Project = require('./../models/projectModel');
@@ -63,7 +65,10 @@ exports.getProjectProposals = catchAsync(async (req, res, next) => {
 
 exports.acceptProposal = catchAsync(async (req, res, next) => {
     // 1) Find the proposal and populate the project so we can check the client
-    const proposal = await Proposal.findById(req.params.id).populate('project');
+    const proposal = await Proposal.findById(req.params.id).populate('project').populate({
+        path: 'freelancer',
+        select: 'name email',
+    });
 
     if (!proposal) {
         return next(new AppError('No proposal found with that ID', 404));
@@ -93,7 +98,8 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
     // 5) Change Project status and assign freelancer
     const project = await Project.findById(proposal.project._id);
     project.status = 'in-progress';
-    project.assignedFreelancer = proposal.freelancer; // from the proposal
+    //  project.assignedFreelancer = proposal.freelancer; // from the proposal
+    project.assignedFreelancer = proposal.freelancer._id;
     await project.save();
 
     // 6) Reject ALL other proposals for this specific project
@@ -104,6 +110,18 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
         },
         { status: 'rejected' },
     );
+    //send Email
+    try {
+        const url = `${req.protocol}://${req.get('host')}/projects/${project._id}`;
+        const freelancerData = await User.findById(proposal.freelancer._id);
+        if (freelancerData && freelancerData.email) {
+            await new Email(freelancerData, url).sendProposalAccepted(project.title);
+        } else {
+            console.error('❌ Freelancer email not found in database');
+        }
+    } catch (error) {
+        console.error('❌ Failed to send Proposal Accepted Email:', error);
+    }
 
     res.status(200).json({
         status: 'success',

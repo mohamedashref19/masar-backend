@@ -21,7 +21,12 @@ router.get('/freelancers/:id', userController.getFreelancer);
 // User
 
 router.get('/me', authController.protect, userController.getMe);
-router.patch('/updateMe', authController.protect, userController.updateMe);
+router.patch(
+    '/updateMe',
+    authController.protect,
+    userController.uploadUserCV,
+    userController.updateMe,
+);
 router.delete('/deleteMe', authController.protect, userController.deleteMe);
 router.patch('/updateMyPassword', authController.protect, userController.updateMyPassword);
 

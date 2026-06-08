@@ -8,14 +8,25 @@ module.exports = class Email {
         this.from = `Masar Platform <${process.env.EMAIL_FROM}>`;
     }
 
-    //  Mailtrap Only
     getTransport() {
+        if (process.env.NODE_ENV === 'production') {
+            return nodemailer.createTransport({
+                host: process.env.GMAIL_HOST,
+                port: process.env.GMAIL_PORT,
+                secure: false,
+                auth: {
+                    user: process.env.GMAIL_USERNAME,
+                    pass: process.env.GMAIL_PASSWORD,
+                },
+            });
+        }
+
         return nodemailer.createTransport({
-            host: process.env.EMAIL_HOST,
-            port: process.env.EMAIL_PORT,
+            host: process.env.MAILTRAP_HOST,
+            port: process.env.MAILTRAP_PORT,
             auth: {
-                user: process.env.EMAIL_USERNAME,
-                pass: process.env.EMAIL_PASSWORD,
+                user: process.env.MAILTRAP_USERNAME,
+                pass: process.env.MAILTRAP_PASSWORD,
             },
         });
     }
@@ -114,7 +125,7 @@ module.exports = class Email {
         <div style="font-size:40px;margin-bottom:20px;">🎉</div>
         <h2 style="color:#16A34A;">تهانينا! تم قبول عرضك</h2>
         <p style="color:#555;line-height:1.7;">
-          مرحباً ${this.firstName}، تم قبول عرضك على مشروع
+          مرحباً ${this.name}، تم قبول عرضك على مشروع
           <strong>${projectTitle}</strong>.
         </p>
         <div style="margin:30px 0;">
@@ -138,7 +149,7 @@ module.exports = class Email {
         <div style="font-size:40px;margin-bottom:20px;">💰</div>
         <h2 style="color:#2563EB;">تم إطلاق الدفعة!</h2>
         <p style="color:#555;line-height:1.7;">
-          مرحباً ${this.firstName}، تم إطلاق دفعة بقيمة
+          مرحباً ${this.name}، تم إطلاق دفعة بقيمة
           <strong>${amount} EGP</strong>
           للمرحلة: <strong>${milestoneTitle}</strong>.
         </p>
@@ -153,5 +164,32 @@ module.exports = class Email {
         <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
       </div>`;
         await this.send('تم إطلاق دفعتك على Masar 💰', html);
+    }
+    // 6. Milestone Funded (Client paid, Escrow ready)
+    async sendMilestoneFunded(amount, milestoneTitle) {
+        const html = `
+      <div style="max-width:500px;margin:auto;padding:40px;font-family:sans-serif;
+                  text-align:center;background:#fff;border-radius:15px;border:1px solid #eee;">
+        <div style="font-size:40px;margin-bottom:20px;">🚀</div>
+        <h2 style="color:#059669;">تم إيداع الدفعة بنجاح!</h2>
+        <p style="color:#555;line-height:1.7;">
+          مرحباً ${this.name}، العميل قام بإيداع مبلغ
+          <strong>${amount} EGP</strong>
+          لتمويل المرحلة: <strong>${milestoneTitle}</strong>.
+        </p>
+        <p style="color:#666;font-size:14px;background:#ECFDF5;padding:15px;border-radius:8px;">
+          الفلوس الآن محفوظة بأمان في منصة مسار. يمكنك البدء في العمل فوراً!
+        </p>
+        <div style="margin:30px 0;">
+          <a href="${this.url}"
+             style="background:#059669;color:white;padding:12px 30px;
+                    text-decoration:none;border-radius:50px;font-weight:bold;">
+            عرض تفاصيل المشروع
+          </a>
+        </div>
+        <hr style="border:0;border-top:1px solid #eee;margin:30px 0;">
+        <p style="font-size:12px;color:#aaa;">Masar — منصة العمل الحر للمحترفين العرب</p>
+      </div>`;
+        await this.send('تم تمويل المرحلة الخاصة بك — ابدأ العمل! 🚀', html);
     }
 };

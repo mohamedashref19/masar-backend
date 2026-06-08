@@ -1,4 +1,5 @@
 // Models
+const multer = require('multer');
 const User = require('./../models/userModel');
 
 // Utils
@@ -11,6 +12,31 @@ const apiFeatures = require('./../utils/apiFeatures');
 // Modules
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+
+const multerStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/cvs');
+    },
+    filename: (req, file, cb) => {
+        const ext = file.mimetype.split('/')[1];
+        cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
+    },
+});
+
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+        cb(null, true);
+    } else {
+        cb(new AppError('Not a PDF! Please upload only PDF files.', 400), false);
+    }
+};
+
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter,
+});
+
+exports.uploadUserCV = upload.single('cv');
 
 exports.getMe = catchAsync(async (req, res, next) => {
     const user = await User.findById({ _id: req.user._id });
@@ -44,6 +70,13 @@ exports.updateMe = catchAsync(async (req, res, next) => {
             'description',
             'website',
         );
+    }
+
+    if (req.file) {
+        if (!filteredObj.freelancerProfile) {
+            filteredObj.freelancerProfile = {};
+        }
+        filteredObj.freelancerProfile.cv = req.file.filename;
     }
 
     const user = await User.findOneAndUpdate({ _id: req.user._id }, filteredObj, {
