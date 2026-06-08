@@ -10,9 +10,16 @@ import {
   VerifyOTP,
   PostJob,
   ProjectDetails,
+  FreelancersList,
+  FreelancerProfile,
+  FreelancerSettings,
+  ClientSettings,
+  EditProject,
 } from "../pages";
+import ChangePassword from "../features/settings/components/ChangePassword";
 import ProtectedRoute from "../features/auth/components/guards/ProtectedRoute";
 import GuestRoute from "../features/auth/components/guards/GuestRoute";
+import ForgotPassword from "../features/auth/components/ForgotPassword";
 
 const AppRouter = () => (
   <Routes>
@@ -26,6 +33,7 @@ const AppRouter = () => (
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
     </Route>
 
     {/* المسارات المحمية */}
@@ -33,16 +41,22 @@ const AppRouter = () => (
       <Route path="/profile" element={<h1>صفحة الملف الشخصي</h1>} />
       <Route path="/projects" element={<ProjectsList />} />
       <Route path="/projects/:id" element={<ProjectDetails />} />
+      <Route path="/freelancers" element={<FreelancersList />} />
+      <Route path="/freelancers/:id" element={<FreelancerProfile />} />
+      <Route path="/change-password" element={<ChangePassword />} />
     </Route>
 
     {/* مسارات الأدوار */}
     <Route element={<ProtectedRoute allowedRoles={["client"]} />}>
       <Route path="/client-dashboard" element={<ClientDashboard />} />
       <Route path="/post-job" element={<PostJob />} />
+      <Route path="/client-settings" element={<ClientSettings />} />
+      <Route path="/projects/edit/:id" element={<EditProject />} />{" "}
     </Route>
 
     <Route element={<ProtectedRoute allowedRoles={["freelancer"]} />}>
       <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
+      <Route path="/freelancer-settings" element={<FreelancerSettings />} />
     </Route>
   </Routes>
 );
