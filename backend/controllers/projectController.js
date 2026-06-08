@@ -16,8 +16,11 @@ exports.createProject = catchAsync(async (req, res, next) => {
         'skillsRequired',
         'budget',
         'deadline',
-        // 'status',
+        'complexity', // <-- أضفنا ده
+        'required_skills', // <-- أضفنا ده
+        'experience_required', // <-- أضفنا ده
     );
+
     filteredObj.client = req.user._id;
 
     const project = await Project.create(filteredObj);
@@ -128,17 +131,14 @@ exports.completeProject = catchAsync(async (req, res, next) => {
 
     if (!project) return next(new AppError('Project not found', 404));
 
-    if (project.client._id.toString() !== req.user._id.toString()) 
+    if (project.client._id.toString() !== req.user._id.toString())
         return next(new AppError('You are not allowed to complete this project', 403));
-    
 
-    if (project.status !== 'in-progress') 
+    if (project.status !== 'in-progress')
         return next(new AppError('Only in-progress projects can be completed', 400));
-    
 
-    if (!project.assignedFreelancer) 
+    if (!project.assignedFreelancer)
         return next(new AppError('Project has no assigned freelancer', 400));
-    
 
     project.status = 'completed';
     project.completedAt = Date.now();
@@ -156,13 +156,11 @@ exports.cancelProject = catchAsync(async (req, res, next) => {
 
     if (!project) return next(new AppError('Project not found', 404));
 
-    if (project.client._id.toString() !== req.user._id.toString()) 
+    if (project.client._id.toString() !== req.user._id.toString())
         return next(new AppError('You are not allowed to cancel this project', 403));
-    
 
-    if (project.status === 'completed' || project.status === 'cancelled') 
+    if (project.status === 'completed' || project.status === 'cancelled')
         return next(new AppError('This project cannot be cancelled', 400));
-    
 
     project.status = 'cancelled';
 
