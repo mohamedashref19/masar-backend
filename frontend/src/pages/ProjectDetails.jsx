@@ -1,9 +1,13 @@
 import { useProjectDetailsLogic } from "../features/projects/hooks/useProjectDetailsLogic";
-import { Button } from "../components"; // زرار الـ UI بتاعك
-import { format } from "date-fns"; // هنحتاجها عشان نظبط شكل التاريخ
-import { ar } from "date-fns/locale"; // لتعريب التاريخ
+import { Button } from "../components";
+import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 
 import ApplyProposalModal from "../features/proposals/components/ApplyProposalModal";
+import ClientProposalsList from "../features/proposals/components/ClientProposalsList";
+
+// 🎯 1. استيراد كومبوننت الأكشنز بتاع الكلاينت اللي انت عملته
+import ProjectActionsForClient from "../features/projects/components/ProjectActionsForClient";
 
 export default function ProjectDetails() {
   const {
@@ -18,6 +22,10 @@ export default function ProjectDetails() {
     isModalOpen,
     closeModal,
   } = useProjectDetailsLogic();
+
+  console.log("Project Details Logic:", {
+    project,
+  });
 
   if (isLoading) {
     return (
@@ -36,29 +44,34 @@ export default function ProjectDetails() {
   }
 
   // تنسيق التاريخ اللي راجع من الباك إند
-  const formattedDeadline = format(new Date(project.deadline), "dd MMMM yyyy", {
-    locale: ar,
-  });
-  const formattedCreatedAt = format(
-    new Date(project.createdAt),
-    "dd MMMM yyyy",
-    { locale: ar },
-  );
+  // تنسيق التاريخ اللي راجع من الباك إند بطريقة آمنة
+  const formattedDeadline = project.project?.deadline
+    ? format(new Date(project.project.deadline), "dd MMMM yyyy", { locale: ar })
+    : "تاريخ غير محدد";
+
+  const formattedCreatedAt = project.project?.createdAt
+    ? format(new Date(project.project.createdAt), "dd MMMM yyyy", {
+        locale: ar,
+      })
+    : "تاريخ غير محدد";
 
   return (
     <div className="container mx-auto py-12 px-4 mt-16 max-w-4xl">
       {/* الهيدر: العنوان والسعر */}
       <div className="bg-primary p-8 rounded-xl border border-slate-800 shadow-xl mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-          <h1 className="text-3xl font-bold text-heading">{project.title}</h1>
+          <h1 className="text-3xl font-bold text-heading">
+            {project.project.title}
+          </h1>
           <div className="bg-slate-800 text-secondary px-6 py-2 rounded-lg text-lg font-bold border border-secondary/20">
-            {project.budget} $
+            {project.project.budget} $
           </div>
         </div>
 
         <div className="flex flex-wrap gap-4 text-sm text-slate-400 mb-6">
           <span className="flex items-center gap-1">
-            <span className="text-slate-500">القسم:</span> {project.category}
+            <span className="text-slate-500">القسم:</span>{" "}
+            {project.project.category}
           </span>
           <span className="text-slate-600">|</span>
           <span className="flex items-center gap-1">
@@ -78,7 +91,7 @@ export default function ProjectDetails() {
             المهارات المطلوبة:
           </h3>
           <div className="flex flex-wrap gap-2">
-            {project.skillsRequired.map((skill, index) => (
+            {project.project?.skillsRequired.map((skill, index) => (
               <span
                 key={index}
                 className="bg-slate-900 text-slate-300 text-sm px-3 py-1.5 rounded border border-slate-700"
@@ -89,33 +102,53 @@ export default function ProjectDetails() {
           </div>
         </div>
 
-        {/* زر التقديم (يظهر للمستقلين بس) */}
-        {!isOwner && userRole !== "client" && project.status === "open" && (
-          <Button
-            variant="accent"
-            className="w-full md:w-auto mt-4 px-8"
-            onClick={onApplyClick}
-          >
-            قدّم عرضك الآن
-          </Button>
-        )}
+        {/* زر التقديم (يظهر للمستقلين بس والمشروع مفتوح) */}
+        {!isOwner &&
+          userRole !== "client" &&
+          project.project.status === "open" && (
+            <Button
+              variant="accent"
+              className="w-full md:w-auto mt-4 px-8"
+              onClick={onApplyClick}
+            >
+              قدّم عرضك الآن
+            </Button>
+          )}
       </div>
 
       {/* تفاصيل المشروع */}
-      <div className="bg-primary p-8 rounded-xl border border-slate-800 shadow-xl">
+      <div className="bg-primary p-8 rounded-xl border border-slate-800 shadow-xl mb-8">
         <h2 className="text-2xl font-bold text-heading mb-6 border-b border-slate-800 pb-4">
           تفاصيل المشروع
         </h2>
         <div className="prose prose-invert max-w-none text-slate-300 whitespace-pre-wrap leading-relaxed">
-          {project.description}
+          {project.project.description}
         </div>
+
+        {/* 
+          🎯 2. زراير الأكشن للعميل (تظهر فقط لو هو صاحب المشروع) 
+          حطيناها جوه كارت التفاصيل من تحت عشان تبقى واضحة قدامه
+        */}
+        {isOwner && <ProjectActionsForClient project={project} />}
       </div>
+
       {/* إضافة المودال في آخر الصفحة */}
       <ApplyProposalModal
         isOpen={isModalOpen}
         onClose={closeModal}
         projectId={projectId}
       />
+
+      {/* 
+        🎯 3. قائمة العروض للعميل 
+        تظهر فقط لو هو صاحب المشروع (وممكن نضيف شرط إنها تختفي لو المشروع in-progress أو خلص عشان الزحمة)
+      */}
+      {isOwner && (
+        <ClientProposalsList
+          projectId={projectId}
+          projectStatus={project.project.status}
+        />
+      )}
     </div>
   );
 }

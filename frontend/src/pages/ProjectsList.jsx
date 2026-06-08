@@ -3,7 +3,12 @@ import ProjectCard from "../features/projects/components/ProjectCard";
 
 export default function ProjectsList() {
   const { projects, isLoading, isError, errorMessage } = useProjectsListLogic();
-
+  console.log("ProjectsList rendered with:", {
+    projects,
+    isLoading,
+    isError,
+    errorMessage,
+  });
   // حالة التحميل
   if (isLoading) {
     return (
@@ -34,7 +39,7 @@ export default function ProjectsList() {
       </div>
 
       {/* عرض المشاريع أو رسالة لو مفيش مشاريع */}
-      {projects.length === 0 ? (
+      {projects.projects.length === 0 ? (
         <div className="text-center py-20 bg-primary rounded-xl border border-slate-800">
           <p className="text-slate-400 text-lg">
             لا توجد مشاريع متاحة في الوقت الحالي.
@@ -42,7 +47,7 @@ export default function ProjectsList() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+          {projects.projects.map((project) => (
             <ProjectCard key={project._id} project={project} />
           ))}
         </div>

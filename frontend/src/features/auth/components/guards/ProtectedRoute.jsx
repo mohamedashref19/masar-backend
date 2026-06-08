@@ -1,22 +1,24 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-export default function ProtectedRoute({ allowedRoles }) {
-  const { token, user } = useSelector((state) => state.auth);
-  const location = useLocation(); // عشان نعرف هو كان بيحاول يفتح صفحة إيه
+const ProtectedRoute = ({ allowedRoles }) => {
+  const { user, isInitializing } = useSelector((state) => state.auth);
+  const location = useLocation();
 
-  // 1. التحقق الأول: هل هو مسجل دخول أصلاً؟
-  if (!token) {
-    // بنبعت الـ location في الـ state عشان بعد ما يعمل Login نرجعه لنفس الصفحة اللي كان عاوزها
+  // 🎯 السطر ده هو "الفرامل": لو لسه بنحمل بيانات اليوزر، ما تعملش Redirect أبداً
+  if (isInitializing) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-primary">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-secondary"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. التحقق الثاني (اختياري): هل معاه الصلاحية للصفحة دي؟
-  // لو مررنا allowedRoles للصفحة، والـ Role بتاع اليوزر مش جواها، نطرده.
-  if (allowedRoles && !allowedRoles.includes(user?.role)) {
-    return <Navigate to="/unauthorized" replace />; // أو ممكن ترجعه للرئيسية
-  }
-
-  // 3. لو عدى من كل ده، افتحله الباب
   return <Outlet />;
-}
+};
+
+export default ProtectedRoute;
