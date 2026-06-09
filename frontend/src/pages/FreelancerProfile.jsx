@@ -5,6 +5,7 @@ import ReviewsList from "../features/reviews/components/ReviewsList";
 export default function FreelancerProfile() {
   const { id } = useParams();
   const { profile, reviews, isLoading, isError } = useFreelancerProfile(id);
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
@@ -21,13 +22,11 @@ export default function FreelancerProfile() {
     );
   }
 
-  // استخراج بيانات البروفايل الخاص
   const fProfile = profile.freelancerProfile || {};
   const averageRating = fProfile.rating || 0;
 
   return (
     <div className="container mx-auto py-12 px-4 mt-16 max-w-5xl">
-      {/* القسم العلوي: الهيدر والصورة */}
       <div className="bg-primary border border-slate-800 rounded-xl overflow-hidden shadow-xl mb-8">
         <div className="h-32 bg-gradient-to-r from-slate-800 to-slate-900"></div>
         <div className="px-8 pb-8 relative">
@@ -67,10 +66,11 @@ export default function FreelancerProfile() {
                   ⭐ {averageRating > 0 ? averageRating.toFixed(1) : "جديد"}
                 </span>
               </div>
+
+              {/* 🎯 تم حذف زر المراسلة العشوائي لحماية الـ Business Logic والـ Constraints للباك إند */}
             </div>
           </div>
 
-          {/* النبذة التعريفية */}
           <div className="mt-8 pt-8 border-t border-slate-800">
             <h2 className="text-xl font-bold text-white mb-4">
               النبذة التعريفية
@@ -80,7 +80,6 @@ export default function FreelancerProfile() {
             </p>
           </div>
 
-          {/* المهارات */}
           <div className="mt-8">
             <h2 className="text-xl font-bold text-white mb-4">المهارات</h2>
             <div className="flex flex-wrap gap-2">
@@ -101,7 +100,6 @@ export default function FreelancerProfile() {
         </div>
       </div>
 
-      {/* قسم التقييمات */}
       <ReviewsList reviews={reviews} />
     </div>
   );

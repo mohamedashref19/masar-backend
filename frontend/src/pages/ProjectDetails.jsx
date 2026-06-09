@@ -145,7 +145,7 @@ export default function ProjectDetails() {
       */}
       {isOwner && (
         <ClientProposalsList
-          projectId={projectId}
+          projectId={project.project._id || project.project.id || projectId}
           projectStatus={project.project.status}
         />
       )}

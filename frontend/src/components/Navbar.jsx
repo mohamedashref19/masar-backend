@@ -3,8 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/store/authSlice"; // تأكد من المسار
 import { motion, AnimatePresence } from "framer-motion";
-import { FiMenu, FiX, FiLogOut, FiUser, FiPlusCircle } from "react-icons/fi";
-
+import {
+  FiMenu,
+  FiX,
+  FiLogOut,
+  FiUser,
+  FiPlusCircle,
+  FiMessageSquare,
+} from "react-icons/fi";
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
@@ -34,39 +40,57 @@ const Navbar = () => {
 
           {/* 2. Desktop Navigation (Dynamic Links) */}
           <div className="hidden md:flex items-center gap-8">
-            <Link
-              to="/projects"
-              className="text-body hover:text-secondary font-medium transition-colors"
-            >
-              تصفح المشاريع
-            </Link>
-
             {user ? (
               <>
                 {isClient ? (
                   <>
-                    <Link
-                      to="/client-dashboard"
-                      className="text-body hover:text-secondary font-medium transition-colors"
-                    >
-                      مشاريعي
-                    </Link>
                     <Link
                       to="/post-job"
                       className="flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-2 rounded-xl border border-secondary/20 hover:bg-secondary hover:text-white transition-all"
                     >
                       <FiPlusCircle /> انشر مشروعاً
                     </Link>
+                    <Link
+                      to="/client-dashboard"
+                      className="text-body hover:text-secondary font-medium transition-colors"
+                    >
+                      مشاريعي
+                    </Link>
+
+                    <Link
+                      to="/freelancers"
+                      className="text-body hover:text-secondary font-medium transition-colors"
+                    >
+                      المستقلين
+                    </Link>
                   </>
                 ) : (
-                  <Link
-                    to="/freelancer-dashboard"
-                    className="text-body hover:text-secondary font-medium transition-colors"
-                  >
-                    عروضي
-                  </Link>
+                  <>
+                    <Link
+                      to="/freelancer-dashboard"
+                      className="text-body hover:text-secondary font-medium transition-colors"
+                    >
+                      عروضي
+                    </Link>
+                    <Link
+                      to="/projects"
+                      className="text-body hover:text-secondary font-medium transition-colors"
+                    >
+                      تصفح المشاريع
+                    </Link>
+                  </>
                 )}
 
+                {/* // 3. جوه الـ Mobile Menu Panel (للموبايل) تحت لينك "تصفح
+                المشاريع" أضف: */}
+                {user && (
+                  <Link
+                    to="/inbox"
+                    className="block text-body py-2 flex items-center gap-2"
+                  >
+                    <FiMessageSquare /> المحادثات والرسائل
+                  </Link>
+                )}
                 {/* Profile Dropdown (Simplified for Demo) */}
                 <div className="flex items-center gap-4 border-l border-white/10 pr-4">
                   <Link

@@ -1,6 +1,7 @@
 /** Common Pages */
 export { default as Home } from "./Home";
 export { default as ClientDashboard } from "./ClientDashboard";
+export { default as Inbox } from "./Inbox";
 export { default as NotFound } from "./NotFound";
 
 /** Freelancers */
