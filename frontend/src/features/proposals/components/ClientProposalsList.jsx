@@ -98,15 +98,15 @@ export default function ClientProposalsList({ projectId, projectStatus }) {
               </p>
             </div>
 
-            {/* الأزرار (أضفنا زرار المراسلة هنا) */}
+            {/* الأزرار (تظهر فقط لو المشروع لسه Open والعرض Pending) */}
             {projectStatus === "open" && proposal.status === "pending" && (
               <div className="flex gap-3 border-t border-slate-800 pt-4">
-                {/* 🎯 زرار الشات الجديد المتناسق مع الهوية البصرية */}
+                {/* زرار المراسلة والمناقشة قبل الاتفاق */}
                 <Button
                   type="button"
                   onClick={() =>
                     handleStartChat({
-                      projectId: projectId,
+                      projectId,
                       freelancerId: proposal.freelancer?._id,
                     })
                   }
@@ -117,11 +117,10 @@ export default function ClientProposalsList({ projectId, projectStatus }) {
                   }
                   className="bg-slate-800 hover:bg-slate-700 text-secondary border border-secondary/10 flex-1 transition-all"
                 >
-                  {isStartingChat
-                    ? "جاري الاتصال..."
-                    : "مراسلة ومناقشة العرض 💬"}
+                  مراسلة ومناقشة العرض 💬
                 </Button>
 
+                {/* زرار قبول العرض الفعلي اللي بيحرك الـ State Machine للباك إند */}
                 <Button
                   variant="accent"
                   className="flex-1"
@@ -134,10 +133,11 @@ export default function ClientProposalsList({ projectId, projectStatus }) {
                 >
                   {acceptMutation.isPending &&
                   acceptMutation.variables === proposal._id
-                    ? "جاري القبول..."
+                    ? "جاري القبول وبدء المشروع..."
                     : "قبول العرض وبدء التنفيذ"}
                 </Button>
 
+                {/* زرار الرفض */}
                 <Button
                   className="bg-slate-800 hover:bg-red-500/20 text-white hover:text-red-400 border border-transparent hover:border-red-500/30 px-6 transition-all"
                   onClick={() => rejectMutation.mutate(proposal._id)}

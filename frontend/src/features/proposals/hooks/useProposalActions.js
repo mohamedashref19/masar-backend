@@ -8,12 +8,17 @@ export const useProposalActions = (projectId) => {
   const acceptMutation = useMutation({
     mutationFn: acceptProposal,
     onSuccess: () => {
-      toast.success("تم قبول العرض! المشروع الآن قيد التنفيذ 🚀");
-      // بنعمل ريفريش للعروض وللمشروع نفسه عشان حالته تتغير لـ in-progress
-      queryClient.invalidateQueries({ queryKey: ["proposals", projectId] });
+      toast.success(
+        "تم قبول العرض! المشروع الآن قيد التنفيذ وبدء بند الدفع الأول 🚀",
+      );
+
+      // 🎯 أهم سطرين لربط دورتين البيانات ببعض تلقائياً بدون ريفريش يدوي
       queryClient.invalidateQueries({ queryKey: ["project", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["milestones", projectId] });
+      queryClient.invalidateQueries({ queryKey: ["proposals", projectId] });
     },
-    onError: (error) => toast.error(error.response?.data?.message || "حدث خطأ"),
+    onError: (error) =>
+      toast.error(error.response?.data?.message || "حدث خطأ أثناء قبول العرض"),
   });
 
   const rejectMutation = useMutation({
