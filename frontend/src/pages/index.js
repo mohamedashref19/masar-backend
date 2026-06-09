@@ -13,6 +13,7 @@ export { default as FreelancerSettings } from "./FreelancerSettings";
 export { default as ProjectDetails } from "./ProjectDetails";
 export { default as ProjectsList } from "./ProjectsList";
 export { default as PostJob } from "./PostJob";
+export { default as SmartChatPage } from "./SmartChatPage";
 
 /** Auth */
 export { default as Login } from "./Login";
