@@ -1,15 +1,30 @@
 import { useProjectProposals } from "../hooks/useProjectProposals";
 import { useProposalActions } from "../hooks/useProposalActions";
 import { Button } from "../../../components";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { createConversation } from "../../chat/services/chatApi";
+import toast from "react-hot-toast";
 
 export default function ClientProposalsList({ projectId, projectStatus }) {
   const { data, isLoading, isError } = useProjectProposals(projectId);
   const { acceptMutation, rejectMutation } = useProposalActions(projectId);
+  const navigate = useNavigate();
 
-  // شكل الداتا اللي راجعة من الباك إند بتاعك: data.data.proposals
-  const proposals = data?.data?.proposals || [];
+  // ميوتيشن فتح الشات
+  const { mutate: handleStartChat, isPending: isStartingChat } = useMutation({
+    mutationFn: createConversation,
+    onSuccess: () => {
+      toast.success("تم فتح غرفة المحادثة 💬");
+      navigate("/inbox");
+    },
+    onError: () => {
+      toast.error("حدث خطأ أثناء محاولة بدء المحادثة.");
+    },
+  });
 
+  const proposals =
+    data?.data?.proposals || data?.proposals || data?.data || [];
   if (isLoading) {
     return (
       <div className="py-8 text-center text-slate-400">
@@ -83,15 +98,38 @@ export default function ClientProposalsList({ projectId, projectStatus }) {
               </p>
             </div>
 
-            {/* الأزرار (تظهر فقط لو المشروع لسه Open والعرض Pending) */}
+            {/* الأزرار (أضفنا زرار المراسلة هنا) */}
             {projectStatus === "open" && proposal.status === "pending" && (
               <div className="flex gap-3 border-t border-slate-800 pt-4">
+                {/* 🎯 زرار الشات الجديد المتناسق مع الهوية البصرية */}
+                <Button
+                  type="button"
+                  onClick={() =>
+                    handleStartChat({
+                      projectId: projectId,
+                      freelancerId: proposal.freelancer?._id,
+                    })
+                  }
+                  disabled={
+                    isStartingChat ||
+                    acceptMutation.isPending ||
+                    rejectMutation.isPending
+                  }
+                  className="bg-slate-800 hover:bg-slate-700 text-secondary border border-secondary/10 flex-1 transition-all"
+                >
+                  {isStartingChat
+                    ? "جاري الاتصال..."
+                    : "مراسلة ومناقشة العرض 💬"}
+                </Button>
+
                 <Button
                   variant="accent"
                   className="flex-1"
                   onClick={() => acceptMutation.mutate(proposal._id)}
                   disabled={
-                    acceptMutation.isPending || rejectMutation.isPending
+                    isStartingChat ||
+                    acceptMutation.isPending ||
+                    rejectMutation.isPending
                   }
                 >
                   {acceptMutation.isPending &&
@@ -101,10 +139,12 @@ export default function ClientProposalsList({ projectId, projectStatus }) {
                 </Button>
 
                 <Button
-                  className="bg-slate-800 hover:bg-red-500/20 text-white hover:text-red-400 border border-transparent hover:border-red-500/30 flex-1 transition-all"
+                  className="bg-slate-800 hover:bg-red-500/20 text-white hover:text-red-400 border border-transparent hover:border-red-500/30 px-6 transition-all"
                   onClick={() => rejectMutation.mutate(proposal._id)}
                   disabled={
-                    acceptMutation.isPending || rejectMutation.isPending
+                    isStartingChat ||
+                    acceptMutation.isPending ||
+                    rejectMutation.isPending
                   }
                 >
                   رفض

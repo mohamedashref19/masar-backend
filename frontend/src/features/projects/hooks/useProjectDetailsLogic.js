@@ -31,7 +31,10 @@ export const useProjectDetailsLogic = () => {
     isError,
     errorMessage: error?.message || "حدث خطأ أثناء تحميل تفاصيل المشروع",
     userRole: user?.role, // Client ولا Freelancer
-    isOwner: user?._id === data?.data?.client?._id, // هل هو صاحب المشروع؟
+    isOwner:
+      user?._id && data?.data?.project?.client?._id
+        ? String(user._id) === String(data.data.project.client._id)
+        : false,
     onApplyClick: handleApplyClick,
     projectId: id, // هنحتاج نمرر ده
     isModalOpen,

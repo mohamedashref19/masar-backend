@@ -15,6 +15,7 @@ import {
   FreelancerSettings,
   ClientSettings,
   EditProject,
+  Inbox,
 } from "../pages";
 import ChangePassword from "../features/settings/components/ChangePassword";
 import ProtectedRoute from "../features/auth/components/guards/ProtectedRoute";
@@ -40,6 +41,7 @@ const AppRouter = () => (
     <Route element={<ProtectedRoute />}>
       <Route path="/profile" element={<h1>صفحة الملف الشخصي</h1>} />
       <Route path="/projects" element={<ProjectsList />} />
+      <Route path="/inbox" element={<Inbox />} />
       <Route path="/projects/:id" element={<ProjectDetails />} />
       <Route path="/freelancers" element={<FreelancersList />} />
       <Route path="/freelancers/:id" element={<FreelancerProfile />} />
