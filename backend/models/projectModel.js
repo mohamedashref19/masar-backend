@@ -56,14 +56,17 @@ const projectSchema = new mongoose.Schema(
             type: mongoose.Schema.ObjectId,
             ref: 'User',
         },
+
         complexity: {
             type: String,
-            enum: ['Low', 'Medium', 'High'], // يضمن إن جيميناي ميبعتش حاجة تانية
+            enum: ['Low', 'Medium', 'High'],
         },
+
         required_skills: [String], // Array of strings
+
         experience_required: {
             type: String,
-            enum: ['Junior', 'Mid-level', 'Senior'],
+            enum: ['Beginner', 'Intermediate', 'Expert'],
         },
 
         completedAt: Date,
