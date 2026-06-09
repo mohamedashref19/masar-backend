@@ -5,6 +5,9 @@ import { getAllProjects } from "../features/projects/services/projectsApi";
 import { getFreelancers } from "../features/freelancers/services/freelancersApi";
 import { useQuery } from "@tanstack/react-query";
 
+// 🎯 استيراد الـ Widget الذكي للشات بوت الخاص بالكلاينت
+import SmartChatWidget from "../features/chatbot/components/SmartChatWidget";
+
 const stats = [
   { label: "مشاريع نشطة", value: "2.4K+" },
   { label: "مستقلون موثّقون", value: "8.7K+" },
@@ -51,29 +54,31 @@ const Home = () => {
   const isClient = role === "client";
   const isFreelancer = role === "freelancer";
 
+  // جلب المشاريع (مفعلة فقط لغير الكلاينتس)
   const {
     data: projectsData,
     isLoading: isProjectsLoading,
     isError: isProjectsError,
   } = useQuery({
     queryKey: ["projects", "latest-home"],
-    queryFn: () => getAllProjects(""), // لو الباك إند بيدعم الـ Query Params
+    queryFn: () => getAllProjects(""),
     staleTime: 60 * 1000,
-    enabled: !isClient, // ما نجيب المشاريع إلا لو المستخدم مش مستقل، عشان المستقلين ما بيحتاجوش يشوفوا المشاريع في الهوم بيج، هم بيركزوا على فرصهم الخاصة في داشبوردهم
+    enabled: !isClient,
   });
 
   const allProjects = projectsData?.data?.projects || projectsData?.data || [];
   const latestProjects = allProjects.slice(0, 4);
 
+  // جلب المستقلين (مفعلة فقط لغير الفريلانسرز)
   const {
     data: freelancersData,
     isLoading: isFreelancersLoading,
     isError: isFreelancersError,
   } = useQuery({
     queryKey: ["freelancers", "latest-home"],
-    queryFn: () => getFreelancers(""), // لو الباك إند بيدعم الـ Query Params
+    queryFn: () => getFreelancers(""),
     staleTime: 60 * 1000,
-    enabled: !isFreelancer, // ما نجيب المشاريع إلا لو المستخدم مش مستقل، عشان المستقلين ما بيحتاجوش يشوفوا المشاريع في الهوم بيج، هم بيركزوا على فرصهم الخاصة في داشبوردهم
+    enabled: !isFreelancer,
   });
 
   const allFreelancers =
@@ -87,15 +92,15 @@ const Home = () => {
       : "مرحباً بك في مسار — منصة المواهب الاحترافية.";
 
   const heroSubtitle = isClient
-    ? "كوّن فريق أحلامك من أفضل المستقلين الموثوقين."
+    ? "كوّن فريق أحلامك من أفضل المستقلين الموثوقين عبر مساعد مسار الذكي."
     : isFreelancer
       ? "اكتشف مشاريع عالية القيمة وطوّر مسيرتك الحرة."
       : "انضم كمستقل أو وظّف مواهب نخبوية لتوسيع عملك.";
 
   const primaryCta = isClient
-    ? { label: "انشر مشروعاً", to: "/post-job" }
+    ? { label: "غرفة التحليل الذكي 🤖", to: "/ai-assistant" }
     : isFreelancer
-      ? { label: "تصفح المشاريع", to: "/projects" }
+      ? { label: "تصفح المشاريع 🚀", to: "/projects" }
       : { label: "انضم كمستقل", to: "/register?role=freelancer" };
 
   const secondaryCta = !user && {
@@ -121,11 +126,16 @@ const Home = () => {
 
   return (
     <main className="min-h-screen bg-background text-heading font-[Outfit]">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -left-20 h-72 w-72 rounded-full bg-secondary/20 blur-[120px]" />
-        <div className="absolute top-40 right-0 h-80 w-80 rounded-full bg-accent/20 blur-[140px]" />
+      {/* تأثيرات الإضاءة الخلفية للـ Dark/Glassmorphism Theme */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-32 -left-20 h-72 w-72 rounded-full bg-secondary/10 blur-[120px]" />
+        <div className="absolute top-40 right-0 h-80 w-80 rounded-full bg-accent/10 blur-[140px]" />
       </div>
 
+      {/* 🎯 حقن الـ Smart Chat Widget العائم (هو بداخل لوجيكس بيشيك لو كود اليوزر client هيظهر غير كدة هيختفي تلقائياً) */}
+      <SmartChatWidget />
+
+      {/* Hero Section */}
       <motion.section
         className="relative pt-28 pb-16"
         initial="hidden"
@@ -138,7 +148,7 @@ const Home = () => {
             className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl p-10 md:p-14 shadow-[0_25px_60px_rgba(0,0,0,0.35)]"
           >
             <p className="uppercase tracking-[0.3em] text-xs text-secondary/80 mb-4">
-              شبكة مواهب مسار
+              شبكة مواهب مسار الذكية
             </p>
             <h1 className="text-4xl md:text-5xl font-semibold text-heading leading-tight">
               {heroTitle}
@@ -148,7 +158,7 @@ const Home = () => {
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 to={primaryCta.to}
-                className="inline-flex items-center justify-center rounded-md bg-secondary px-6 py-3 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-secondary/30"
+                className="inline-flex items-center justify-center rounded-md bg-secondary px-6 py-3 text-sm font-semibold text-slate-900 transition-all hover:shadow-lg hover:shadow-secondary/30 hover:scale-[1.02]"
               >
                 {primaryCta.label}
               </Link>
@@ -165,6 +175,7 @@ const Home = () => {
         </div>
       </motion.section>
 
+      {/* Stats Section */}
       <motion.section
         className="relative pb-16"
         initial="hidden"
@@ -192,6 +203,7 @@ const Home = () => {
         </div>
       </motion.section>
 
+      {/* Dynamic Feed Section (المستقلين للكلاينت / المشاريع للفريلانسر) */}
       <motion.section
         className="relative pb-16"
         initial="hidden"
@@ -202,17 +214,17 @@ const Home = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={itemVariants} className="mb-8">
             <p className="text-sm uppercase tracking-[0.25em] text-secondary/80">
-              توصيات مخصصة
+              توصيات مخصصة بحسابك
             </p>
             <h2 className="mt-3 text-3xl font-semibold text-heading">
               {feedTitle}
             </h2>
             <p className="mt-2 text-body max-w-2xl">
               {isClient
-                ? "نخبة من المستقلين الذين يقدمون نتائج استثنائية باستمرار."
+                ? "نخبة من المستقلين في تكنولوجيا المعلومات ومطوري البرمجيات المتاحين للتوظيف الفوري."
                 : isFreelancer
-                  ? "فرص جديدة مختارة للمستقلين الطموحين."
-                  : "استكشف فرصاً مميزة ومحترفين موثوقين."}
+                  ? "فرص جديدة مختارة بعناية لتناسب مهاراتك التقنية الحالية."
+                  : "استكشف فرصاً مميزة ومحترفين موثوقين في مجالات تطوير الويب والتطبيقات."}
             </p>
           </motion.div>
 
@@ -221,12 +233,12 @@ const Home = () => {
             className="grid gap-6 md:grid-cols-2"
           >
             {isProjectsLoading || isFreelancersLoading ? (
-              <div className="col-span-full text-center text-body animate-pulse">
-                جاري التحميل...
+              <div className="col-span-full text-center text-body animate-pulse py-8">
+                جاري جلب أحدث بيانات منصة مسار...
               </div>
             ) : isProjectsError || isFreelancersError ? (
-              <div className="col-span-full text-center text-red-500">
-                حدث خطأ أثناء التحميل. يرجى المحاولة لاحقاً.
+              <div className="col-span-full text-center text-red-500 py-8">
+                حدث خطأ أثناء تحميل التوصيات المخصصة. يرجى المحاولة لاحقاً.
               </div>
             ) : (
               feedItems.map((item) => (
@@ -239,17 +251,19 @@ const Home = () => {
                       <p className="text-xl font-semibold text-heading">
                         {item.name}
                       </p>
-                      <p className="mt-1 text-body">{item.role}</p>
+                      <p className="mt-1 text-body text-sm text-slate-400">
+                        {item.role || "Frontend Developer"}
+                      </p>
                       <div className="mt-4 flex items-center justify-between text-sm text-body">
-                        <span className="text-accent font-semibold">
-                          {item.rate}
+                        <span className="text-accent font-semibold bg-accent/10 px-3 py-1 rounded-md border border-accent/20">
+                          {item.rate || "$45 / hr"}
                         </span>
                       </div>
                       <Link
                         to={`/freelancers/${item._id}`}
                         className="mt-4 inline-flex text-sm font-semibold text-secondary hover:text-accent transition-colors"
                       >
-                        عرض الملف →
+                        عرض ملف المستقل التقني ←
                       </Link>
                     </>
                   ) : (
@@ -258,13 +272,15 @@ const Home = () => {
                         {item.title}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-4 text-sm text-body">
-                        <span>الميزانية: {item.budget}</span>
+                        <span className="bg-secondary/10 text-secondary border border-secondary/20 px-3 py-0.5 rounded-md font-medium">
+                          الميزانية: {item.budget} $
+                        </span>
                       </div>
                       <Link
                         to={`/projects/${item._id}`}
                         className="mt-4 inline-flex text-sm font-semibold text-secondary hover:text-accent transition-colors"
                       >
-                        عرض التفاصيل →
+                        عرض تفاصيل المشروع الكاملة ←
                       </Link>
                     </>
                   )}
@@ -275,6 +291,7 @@ const Home = () => {
         </div>
       </motion.section>
 
+      {/* Trust & Escrow Signals */}
       <motion.section
         className="relative pb-20"
         initial="hidden"
@@ -285,13 +302,14 @@ const Home = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={itemVariants} className="mb-8">
             <p className="text-sm uppercase tracking-[0.25em] text-secondary/80">
-              الثقة والأمان
+              الثقة والأمان المالي
             </p>
             <h2 className="mt-3 text-3xl font-semibold text-heading">
-              اعمل بثقة على مسار
+              اعمل بثقة وأمان كامل على منصة مسار
             </h2>
             <p className="mt-2 text-body max-w-2xl">
-              بيئة آمنة وشفافة لبناء شراكات طويلة الأمد.
+              بيئة عمل تقنية آمنة تدعم الـ Escrow ونظام الـ Split payments لضمان
+              الشفافية.
             </p>
           </motion.div>
 
@@ -310,7 +328,9 @@ const Home = () => {
                 <h3 className="text-lg font-semibold text-heading">
                   {signal.title}
                 </h3>
-                <p className="mt-2 text-sm text-body">{signal.description}</p>
+                <p className="mt-2 text-sm text-body text-slate-400">
+                  {signal.description}
+                </p>
               </div>
             ))}
           </motion.div>

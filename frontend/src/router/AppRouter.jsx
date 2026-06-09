@@ -17,6 +17,7 @@ import {
   EditProject,
   Inbox,
   PaymentSuccessRedirect,
+  SmartChatPage,
 } from "../pages";
 import ChangePassword from "../features/settings/components/ChangePassword";
 import ProtectedRoute from "../features/auth/components/guards/ProtectedRoute";
@@ -56,6 +57,7 @@ const AppRouter = () => (
       <Route path="/client-settings" element={<ClientSettings />} />
       <Route path="/projects/edit/:id" element={<EditProject />} />{" "}
       <Route path="/payment-success" element={<PaymentSuccessRedirect />} />
+      <Route path="/ai-assistant" element={<SmartChatPage />} />
     </Route>
 
     <Route element={<ProtectedRoute allowedRoles={["freelancer"]} />}>
