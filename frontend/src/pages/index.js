@@ -21,3 +21,4 @@ export { default as Register } from "./Register";
 /** Client */
 export { default as ClientSettings } from "./ClientSettings";
 export { default as EditProject } from "./EditProject";
+export { default as PaymentSuccessRedirect } from "./PaymentSuccessRedirect";

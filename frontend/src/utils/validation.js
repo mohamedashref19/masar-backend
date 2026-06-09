@@ -107,3 +107,12 @@ export const changePasswordSchema = z
     message: "كلمات المرور غير متطابقة",
     path: ["passwordConfirm"], // الإيرور هيظهر تحت حقل التأكيد
   });
+
+export const milestoneSchema = z.object({
+  title: z.string().min(5, "العنوان يجب أن يكون 5 أحرف على الأقل"),
+  description: z.string().min(10, "الوصف يجب أن يكون تفصيلياً"),
+  amount: z.coerce.number().min(5, "القيمة لا تقل عن 5 دولار"),
+  deadline: z.string().refine((date) => new Date(date) > new Date(), {
+    message: "تاريخ تسليم المرحلة يجب أن يكون في المستقبل",
+  }), // 🎯 الحقل الجديد
+});
