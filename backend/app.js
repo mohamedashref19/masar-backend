@@ -20,6 +20,9 @@ const reviewRouter = require('./routes/reviewRoutes');
 const chatRouter = require('./routes/chatRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
 const stripeConnectRouter = require('./routes/stripeConnectRoutes');
+const aiRouter = require('./routes/aiRoutes');
+
+
 
 // Controllers
 const paymentController = require('./controllers/paymentController');
@@ -75,6 +78,7 @@ app.use(mongoSanitize());
 
 //  Routes
 
+app.use('/api/v1/ai', aiRouter);
 app.use(`/api/v1/users`, userRouter);
 app.use('/api/v1/proposals', proposalRouter);
 app.use(`/api/v1/projects`, projectRouter);
