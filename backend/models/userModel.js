@@ -21,6 +21,7 @@ const freelancerProfileSchema = new mongoose.Schema(
         portfolioLinks: [String],
 
         githubLink: String,
+        
         cv: String,
 
         hourlyRate: Number,
