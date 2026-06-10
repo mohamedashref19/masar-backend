@@ -3,17 +3,24 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../features/auth/store/authSlice"; // تأكد من المسار
 import { motion, AnimatePresence } from "framer-motion";
+import { useNotifications } from "../features/notifications/hooks/useNotifications"; // هوك الإشعارات الذكي
+import NotificationsDropdown from "../features/notifications/components/NotificationsDropdown"; // المكون الزجاجي المنسدل
 import {
   FiMenu,
   FiX,
   FiLogOut,
-  FiUser,
   FiPlusCircle,
   FiMessageSquare,
+  FiBell, // أيقونة الجرس الفخمة
 } from "react-icons/fi";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false); // حالة فتح وإغلاق قائمة الإشعارات
+
   const { user } = useSelector((state) => state.auth);
+  const { unreadCount } = useNotifications(); // جلب عداد الإشعارات غير المقروءة لايف
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -42,6 +49,32 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8">
             {user ? (
               <>
+                {/* 🎯 جرس الإشعارات الذكي (Desktop) */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                    className="p-2 text-body hover:text-white transition-colors relative flex items-center justify-center"
+                    title="الإشعارات"
+                  >
+                    <FiBell
+                      size={22}
+                      className={unreadCount > 0 ? "text-secondary" : ""}
+                    />
+
+                    {/* شارة الـ Badge الحمراء المنبثقة بحركة Bounce */}
+                    {unreadCount > 0 && (
+                      <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-slate-950 animate-bounce">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* القائمة الزجاجية المنسدلة */}
+                  <NotificationsDropdown
+                    isOpen={isNotifOpen}
+                    onClose={() => setIsNotifOpen(false)}
+                  />
+                </div>
                 {isClient ? (
                   <>
                     <Link
@@ -56,7 +89,6 @@ const Navbar = () => {
                     >
                       مشاريعي
                     </Link>
-
                     <Link
                       to="/freelancers"
                       className="text-body hover:text-secondary font-medium transition-colors"
@@ -81,17 +113,14 @@ const Navbar = () => {
                   </>
                 )}
 
-                {/* // 3. جوه الـ Mobile Menu Panel (للموبايل) تحت لينك "تصفح
-                المشاريع" أضف: */}
-                {user && (
-                  <Link
-                    to="/inbox"
-                    className="block text-body py-2 flex items-center gap-2"
-                  >
-                    <FiMessageSquare /> المحادثات والرسائل
-                  </Link>
-                )}
-                {/* Profile Dropdown (Simplified for Demo) */}
+                <Link
+                  to="/inbox"
+                  className="text-body hover:text-secondary font-medium transition-colors flex items-center gap-2"
+                >
+                  <FiMessageSquare /> المحادثات
+                </Link>
+
+                {/* Profile Link & Logout */}
                 <div className="flex items-center gap-4 border-l border-white/10 pr-4">
                   <Link
                     to={isClient ? "/client-settings" : "/freelancer-settings"}
@@ -100,7 +129,7 @@ const Navbar = () => {
                     <span className="text-sm font-bold text-heading leading-none">
                       {user.name}
                     </span>
-                    <span className="text-[10px] text-secondary uppercase tracking-widest">
+                    <span className="text-[10px] text-secondary uppercase tracking-widest mt-1">
                       {user.role}
                     </span>
                   </Link>
@@ -132,7 +161,31 @@ const Navbar = () => {
           </div>
 
           {/* 3. Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-4">
+            {/* جرس الإشعارات السريع للموبايل يظهر بجانب الهامبرغر منيو */}
+            {user && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsNotifOpen(!isNotifOpen)}
+                  className="p-2 text-body relative flex items-center justify-center"
+                >
+                  <FiBell
+                    size={24}
+                    className={unreadCount > 0 ? "text-secondary" : ""}
+                  />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-slate-950">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationsDropdown
+                  isOpen={isNotifOpen}
+                  onClose={() => setIsNotifOpen(false)}
+                />
+              </div>
+            )}
+
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-heading p-2"
@@ -156,15 +209,57 @@ const Navbar = () => {
               <Link to="/projects" className="block text-body py-2">
                 تصفح المشاريع
               </Link>
+
               {user ? (
                 <>
+                  {isClient ? (
+                    <>
+                      <Link
+                        to="/post-job"
+                        className="block text-body py-2 flex items-center gap-2"
+                      >
+                        <FiPlusCircle /> انشر مشروعاً
+                      </Link>
+                      <Link
+                        to="/client-dashboard"
+                        className="block text-body py-2"
+                      >
+                        مشاريعي
+                      </Link>
+                      <Link to="/freelancers" className="block text-body py-2">
+                        المستقلين
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/freelancer-dashboard"
+                        className="block text-body py-2"
+                      >
+                        عروضي
+                      </Link>
+                    </>
+                  )}
+
+                  <Link
+                    to="/inbox"
+                    className="block text-body py-2 flex items-center gap-2"
+                  >
+                    <FiMessageSquare /> المحادثات والرسائل
+                  </Link>
+
                   <div className="pt-4 border-t border-white/5">
-                    <p className="text-sm text-secondary mb-2 uppercase tracking-widest">
-                      {user.name}
-                    </p>
+                    <Link
+                      to={
+                        isClient ? "/client-settings" : "/freelancer-settings"
+                      }
+                      className="block text-sm text-secondary mb-3 uppercase tracking-widest font-bold"
+                    >
+                      {user.name} (تعديل الحساب)
+                    </Link>
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 text-red-400 font-bold"
+                      className="flex items-center gap-2 text-red-400 font-bold py-2 w-full text-right"
                     >
                       <FiLogOut /> تسجيل الخروج
                     </button>
@@ -179,7 +274,7 @@ const Navbar = () => {
                     دخول
                   </Link>
                   <Link
-                    to="/signup"
+                    to="/register"
                     className="text-center py-3 rounded-xl bg-secondary text-white font-bold"
                   >
                     ابدأ الآن
