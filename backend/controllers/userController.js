@@ -13,6 +13,7 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
 const apiFeatures = require('./../utils/apiFeatures');
+const createNotification = require('./../utils/createNotification');
 
 // Modules
 const jwt = require('jsonwebtoken');
@@ -156,6 +157,14 @@ if (user.role === 'freelancer') {
             });
 
             aiAnalysis = aiResponse.data;
+
+            await createNotification({
+                recipient: user._id,
+                type: 'system',
+                title: 'Portfolio analysis completed',
+                message: 'Your portfolio has been analyzed successfully.',
+            });
+
         } catch (err) {
             aiAnalysisError =
                 err.response?.data?.detail ||

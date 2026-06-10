@@ -6,6 +6,7 @@ const Project = require('./../models/projectModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const apiFeatures = require('./../utils/apiFeatures');
+const createNotification = require('../utils/createNotification');
 
 exports.createMilestone = catchAsync(async (req, res, next) => {
     const project = await Project.findById(req.params.projectId);
@@ -31,6 +32,16 @@ exports.createMilestone = catchAsync(async (req, res, next) => {
         title: req.body.title,
         description: req.body.description,
         amount: req.body.amount,
+    });
+
+    await createNotification({
+        recipient: project.assignedFreelancer,
+        sender: req.user._id,
+        type: 'milestone_created',
+        title: 'New milestone created',
+        message: `A new milestone "${milestone.title}" was created.`,
+        relatedProject: project._id,
+        relatedMilestone: milestone._id,
     });
 
     return res.status(201).json({
@@ -89,6 +100,16 @@ exports.submitMilestone = catchAsync(async (req, res, next) => {
     milestone.submittedAt = Date.now();
     await milestone.save();
 
+    await createNotification({
+        recipient: milestone.client._id || milestone.client,
+        sender: req.user._id,
+        type: 'milestone_submitted',
+        title: 'Milestone submitted',
+        message: `Milestone "${milestone.title}" was submitted for review.`,
+        relatedProject: milestone.project,
+        relatedMilestone: milestone._id,
+    });
+
     res.status(200).json({
         status: 'success',
         data: { milestone },
@@ -113,6 +134,16 @@ exports.approveMilestone = catchAsync(async (req, res, next) => {
     milestone.status = 'approved';
     milestone.approvedAt = Date.now();
     await milestone.save();
+
+    await createNotification({
+        recipient: milestone.freelancer._id || milestone.freelancer,
+        sender: req.user._id,
+        type: 'milestone_approved',
+        title: 'Milestone approved',
+        message: `Milestone "${milestone.title}" was approved.`,
+        relatedProject: milestone.project,
+        relatedMilestone: milestone._id,
+    });
 
     res.status(200).json({
         status: 'success',

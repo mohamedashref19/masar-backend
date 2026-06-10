@@ -7,6 +7,7 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const apiFeatures = require('../utils/apiFeatures');
 const aiClient = require('../utils/aiClient');
+const createNotification = require('../utils/createNotification');
 
 
 const normalizeSkills = (skills) => {
@@ -283,6 +284,15 @@ exports.completeProject = catchAsync(async (req, res, next) => {
 
     await project.save();
 
+    await createNotification({
+        recipient: project.assignedFreelancer,
+        sender: req.user._id,
+        type: 'project_completed',
+        title: 'Project completed',
+        message: `Project "${project.title}" has been completed.`,
+        relatedProject: project._id,
+    });
+
     res.status(200).json({
         status: 'success',
         data: { project },
@@ -303,6 +313,15 @@ exports.cancelProject = catchAsync(async (req, res, next) => {
     project.status = 'cancelled';
 
     await project.save();
+
+    await createNotification({
+        recipient: project.assignedFreelancer,
+        sender: req.user._id,
+        type: 'project_cancelled',
+        title: 'Project cancelled',
+        message: `Project "${project.title}" has been cancelled.`,
+        relatedProject: project._id,
+    });
 
     res.status(200).json({
         status: 'success',

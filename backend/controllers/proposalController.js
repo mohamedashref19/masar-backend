@@ -2,10 +2,13 @@ const Proposal = require('./../models/proposalModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
+const createNotification = require('./../utils/createNotification');
 const User = require('./../models/userModel');
 
 // Models
 const Project = require('./../models/projectModel');
+
+
 
 exports.createProposal = catchAsync(async (req, res, next) => {
     const projectId = req.params.projectId;
@@ -39,6 +42,17 @@ exports.createProposal = catchAsync(async (req, res, next) => {
         price: req.body.price,
         duration: req.body.duration,
     });
+
+    await createNotification({
+        recipient: project.client,
+        sender: req.user._id,
+        type: 'proposal_received',
+        title: 'New proposal received',
+        message: `You received a new proposal for "${project.title}".`,
+        relatedProject: project._id,
+        relatedProposal: newProposal._id,
+    });
+
     res.status(201).json({
         status: 'success',
         data: { proposal: newProposal },
@@ -110,6 +124,26 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
         },
         { status: 'rejected' },
     );
+
+    await createNotification({
+        recipient: proposal.freelancer,
+        sender: req.user._id,
+        type: 'proposal_accepted',
+        title: 'Proposal accepted',
+        message: `Your proposal for "${project.title}" was accepted.`,
+        relatedProject: project._id,
+        relatedProposal: proposal._id,
+    });
+
+    await createNotification({
+        recipient: proposal.freelancer,
+        sender: req.user._id,
+        type: 'project_started',
+        title: 'Project started',
+        message: `Project "${project.title}" is now in progress.`,
+        relatedProject: project._id,
+    });
+
     //send Email
     try {
         const url = `${req.protocol}://${req.get('host')}/projects/${project._id}`;
@@ -148,6 +182,16 @@ exports.rejectProposal = catchAsync(async (req, res, next) => {
     }
     proposal.status = 'rejected';
     await proposal.save();
+
+    await createNotification({
+        recipient: proposal.freelancer,
+        sender: req.user._id,
+        type: 'proposal_rejected',
+        title: 'Proposal rejected',
+        message: `Your proposal for "${proposal.project.title}" was rejected.`,
+        relatedProject: proposal.project,
+        relatedProposal: proposal._id,
+    });
 
     res.status(200).json({
         status: 'success',
