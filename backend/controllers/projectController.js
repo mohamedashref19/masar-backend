@@ -83,6 +83,7 @@ const normalizeSkills = (skills) => {
 //     });
 // });
 
+
 exports.createProject = catchAsync(async (req, res, next) => {
     let filteredObj = filterObject(
         req.body,
@@ -196,6 +197,7 @@ exports.getProject = catchAsync(async (req, res, next) => {
         data: { project },
     });
 });
+
 
 // for the user to get all their projects
 exports.getMyProjects = catchAsync(async (req, res, next) => {

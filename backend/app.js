@@ -21,6 +21,7 @@ const chatRouter = require('./routes/chatRoutes');
 const paymentRouter = require('./routes/paymentRoutes');
 const stripeConnectRouter = require('./routes/stripeConnectRoutes');
 const aiRouter = require('./routes/aiRoutes');
+const notificationRouter = require('./routes/notificationRoutes');
 
 
 
@@ -85,6 +86,7 @@ app.use(`/api/v1/projects`, projectRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/chat', chatRouter);
 app.use('/api/v1/payments', paymentRouter);
+app.use('/api/v1/notifications', notificationRouter);
 app.use('/api/v1/stripe-connect', stripeConnectRouter);
 
 // Undefined Routes
