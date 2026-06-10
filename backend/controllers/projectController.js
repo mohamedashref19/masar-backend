@@ -1,11 +1,87 @@
 // Models
-const Project = require('./../models/projectModel');
+const Project = require('../models/projectModel');
 
 // Utils
-const filterObject = require('./../utils/filterObj');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
-const apiFeatures = require('./../utils/apiFeatures');
+const filterObject = require('../utils/filterObj');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
+const apiFeatures = require('../utils/apiFeatures');
+const aiClient = require('../utils/aiClient');
+
+
+const normalizeSkills = (skills) => {
+    if (!skills) return [];
+
+    let normalizedSkills = skills;
+
+    if (Array.isArray(normalizedSkills)) {
+        normalizedSkills = normalizedSkills.flatMap((skill) => {
+            if (typeof skill === 'string') {
+                return skill.split(',');
+            }
+            return [skill];
+        });
+    } else if (typeof normalizedSkills === 'string') {
+        normalizedSkills = normalizedSkills.split(',');
+    } else {
+        return [];
+    }
+
+    return normalizedSkills
+        .map((skill) => String(skill).trim())
+        .filter(Boolean);
+};
+
+// exports.createProject = catchAsync(async (req, res, next) => {
+//     let filteredObj = filterObject(
+//         req.body,
+//         'title',
+//         'description',
+//         'category',
+//         'skillsRequired',
+//         'budget',
+//         'deadline',
+//         'complexity',
+//         'required_skills',
+//         'experience_required',
+//     );
+
+//     filteredObj.client = req.user._id;
+
+//     const project = await Project.create(filteredObj);
+
+//     let suggestedFreelancers = [];
+
+//     try {
+//         const matchResponse = await aiClient.post(
+//             '/match-project',
+//             {
+//                 project_id: project._id.toString(),
+//                 title: project.title,
+//                 description: project.description,
+//                 required_skills: project.required_skills || project.skillsRequired || [],
+//                 experience_required: project.experience_required || 'Intermediate',
+//             },
+//             {
+//                 params: { top_k: 5 },
+//             },
+//         );
+
+//         if (matchResponse.data && matchResponse.data.recommended_freelancers) {
+//             suggestedFreelancers = matchResponse.data.recommended_freelancers;
+//         }
+//     } catch (aiError) {
+//         console.error('AI Matching Error:', aiError.response?.data || aiError.message);
+//     }
+
+//     return res.status(201).json({
+//         status: 'success',
+//         data: {
+//             project,
+//             suggestedFreelancers,
+//         },
+//     });
+// });
 
 exports.createProject = catchAsync(async (req, res, next) => {
     let filteredObj = filterObject(
@@ -16,20 +92,80 @@ exports.createProject = catchAsync(async (req, res, next) => {
         'skillsRequired',
         'budget',
         'deadline',
-        'complexity', // <-- أضفنا ده
-        'required_skills', // <-- أضفنا ده
-        'experience_required', // <-- أضفنا ده
+        'complexity',
+        'required_skills',
+        'experience_required',
     );
 
     filteredObj.client = req.user._id;
 
+    filteredObj.skillsRequired = normalizeSkills(
+        filteredObj.skillsRequired || filteredObj.required_skills,
+    );
+
+    delete filteredObj.required_skills;
+
     const project = await Project.create(filteredObj);
+
+    console.log('Created project:', project);
+    console.log('Request body:', req.body);
+
+    let suggestedFreelancers = [];
+    let aiMatchingError = null;
+
+    try {
+        const requiredSkills = normalizeSkills(
+            project.skillsRequired ||
+                req.body.skillsRequired ||
+                project.required_skills ||
+                req.body.required_skills,
+        );
+
+        const matchPayload = {
+            project_id: project._id.toString(),
+            title: project.title,
+            description: project.description,
+            required_skills: requiredSkills,
+            budget_range: project.budget ? String(project.budget) : '',
+            complexity: project.complexity || 'Medium',
+            experience_required:
+                project.experience_required ||
+                req.body.experience_required ||
+                'Intermediate',
+        };
+
+        console.log('AI match payload:', matchPayload);
+
+        const matchResponse = await aiClient.post('/match-project', matchPayload, {
+            params: { top_k: Number(req.query.top_k) || 5 },
+        });
+
+        console.dir(matchResponse.data, { depth: null });
+
+        suggestedFreelancers =
+            matchResponse.data?.ranked_freelancers ||
+            matchResponse.data?.recommended_freelancers ||
+            [];
+    } catch (aiError) {
+        aiMatchingError =
+            aiError.response?.data?.detail ||
+            aiError.response?.data?.message ||
+            aiError.message;
+
+        console.error('AI Matching Error:', aiMatchingError);
+    }
 
     return res.status(201).json({
         status: 'success',
-        data: { project },
+        data: {
+            project,
+            suggestedFreelancers,
+            aiMatchingError,
+        },
     });
 });
+
+
 
 exports.getAllProjects = catchAsync(async (req, res, next) => {
     const features = new apiFeatures(Project.find(), req.query)
