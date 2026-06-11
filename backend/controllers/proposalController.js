@@ -13,6 +13,7 @@ const Project = require('./../models/projectModel');
 exports.createProposal = catchAsync(async (req, res, next) => {
     const projectId = req.params.projectId;
     const freelancerId = req.user.id;
+    const freelancer = await User.findById(req.user.id);
     const project = await Project.findById(projectId);
 
     // checking if the project exist
@@ -33,6 +34,10 @@ exports.createProposal = catchAsync(async (req, res, next) => {
 
     if (existingProposal) {
         return next(new AppError('You have already applied to this project', 400));
+    }
+
+    if (freelancer.freelancerProfile.isSpam === true){
+        return next(new AppError(`You can't send proposals until you provide more data about yourself like cv, portfolio, ...` , 403)) // forbidden
     }
 
     const newProposal = await Proposal.create({

@@ -109,9 +109,6 @@ exports.createProject = catchAsync(async (req, res, next) => {
 
     const project = await Project.create(filteredObj);
 
-    console.log('Created project:', project);
-    console.log('Request body:', req.body);
-
     let suggestedFreelancers = [];
     let aiMatchingError = null;
 
@@ -139,7 +136,7 @@ exports.createProject = catchAsync(async (req, res, next) => {
         console.log('AI match payload:', matchPayload);
 
         const matchResponse = await aiClient.post('/match-project', matchPayload, {
-            params: { top_k: Number(req.query.top_k) || 5 },
+            params: { top_k: Number(req.query.top_k) || 20 },
         });
 
         console.dir(matchResponse.data, { depth: null });
@@ -155,6 +152,20 @@ exports.createProject = catchAsync(async (req, res, next) => {
             aiError.message;
 
         console.error('AI Matching Error:', aiMatchingError);
+    }
+    
+    if (suggestedFreelancers.length > 0) {
+        await Promise.all(
+            suggestedFreelancers.map((freelancer) =>
+                createNotification({
+                    recipient: freelancer.freelancer_id,
+                    type: 'system',
+                    title: 'تم ترشيحك لمشروع جديد',
+                    message: `تم ترشيحك بواسطة نظام الذكاء الاصطناعي للتقدم إلى مشروع "${project.title}". اطلع على المشروع وقدّم عرضك إذا كان مناسباً لك.`,
+                    relatedProject: project._id,
+                }),
+            ),
+        );
     }
 
     return res.status(201).json({
