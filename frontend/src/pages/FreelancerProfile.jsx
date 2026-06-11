@@ -1,10 +1,20 @@
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useFreelancerProfile } from "../features/freelancers/hooks/useFreelancerProfile";
 import ReviewsList from "../features/reviews/components/ReviewsList";
 
 export default function FreelancerProfile() {
   const { id } = useParams();
-  const { profile, reviews, isLoading, isError } = useFreelancerProfile(id);
+
+  const { user: currentUser } = useSelector((state) => state.auth);
+  const {
+    profile,
+    reviews,
+    isLoading,
+    isError,
+    onDeleteReview,
+    onUpdateReview,
+  } = useFreelancerProfile(id);
 
   if (isLoading) {
     return (
@@ -100,7 +110,12 @@ export default function FreelancerProfile() {
         </div>
       </div>
 
-      <ReviewsList reviews={reviews} />
+      <ReviewsList
+        reviews={reviews}
+        currentUserId={currentUser?._id}
+        onDelete={onDeleteReview}
+        onUpdate={onUpdateReview}
+      />
     </div>
   );
 }

@@ -13,7 +13,11 @@ import MilestonesList from "../features/milestones/components/MilestonesList";
 
 import ProjectActionsForClient from "../features/projects/components/ProjectActionsForClient";
 
+import { useParams } from "react-router-dom"; // 🎯 تأمين قراءة الـ ID من المسار فوراً
+
 export default function ProjectDetails() {
+  const { projectId: urlProjectId } = useParams(); // 🎯 سحب الـ ID الحقيقي مباشرة من الـ URL
+
   const {
     project,
     isLoading,
@@ -22,10 +26,13 @@ export default function ProjectDetails() {
     userRole,
     isOwner,
     onApplyClick,
-    projectId,
+    projectId: logicProjectId, // هنغير اسمها عشان ميعملش تضارب متغيرات
     isModalOpen,
     closeModal,
   } = useProjectDetailsLogic();
+
+  // تأمين نهائي: لو الـ Hook منفض، خد الـ ID من الـ URL عل طول
+  const actualProjectId = urlProjectId || logicProjectId;
 
   const {
     milestones,
@@ -33,7 +40,7 @@ export default function ProjectDetails() {
     createMilestoneMutate,
     isCreating,
     ...milestoneActions
-  } = useMilestones(projectId);
+  } = useMilestones(actualProjectId);
 
   if (isLoading) {
     return (
@@ -143,7 +150,10 @@ export default function ProjectDetails() {
           {isOwner && project?.project?.status === "in-progress" && (
             <CreateMilestoneForm
               onAddMilestone={(milestoneData, config) =>
-                createMilestoneMutate({ projectId, milestoneData }, config)
+                createMilestoneMutate(
+                  { projectId: actualProjectId, milestoneData },
+                  config,
+                )
               }
               isLoading={isCreating}
             />
@@ -155,8 +165,8 @@ export default function ProjectDetails() {
             </div>
           ) : (
             <MilestonesList
-              milestones={milestones || []} // 🎯 تأمين بـ Array فاضية كـ ديفولت
-              projectId={projectId}
+              milestones={milestones || []}
+              projectId={actualProjectId} // 🎯 التحديث هنا
               userRole={userRole}
               isOwner={isOwner}
               actions={milestoneActions}
@@ -168,7 +178,9 @@ export default function ProjectDetails() {
       {/* 4. قائمة العروض للعميل (تختفي أوتوماتيك لو المشروع بدأ لتجنب الزحمة كما خططت) */}
       {isOwner && project.project.status === "open" && (
         <ClientProposalsList
-          projectId={project.project._id || project.project.id || projectId}
+          projectId={
+            project.project._id || project.project.id || actualProjectId
+          } // 🎯 التحديث هنا
           projectStatus={project.project.status}
         />
       )}
@@ -176,7 +188,7 @@ export default function ProjectDetails() {
       <ApplyProposalModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        projectId={projectId}
+        projectId={actualProjectId} // 🎯 التحديث هنا
       />
     </div>
   );

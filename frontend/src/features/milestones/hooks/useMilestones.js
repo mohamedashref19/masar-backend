@@ -58,22 +58,34 @@ export const useMilestones = (projectId) => {
     },
   });
 
+  // جوه الـ return بتاع useMilestones.js
   return {
-    milestones:
-      data?.data?.milestones ||
-      data?.milestones ||
-      data?.data?.project?.milestones ||
-      data?.project?.milestones ||
-      data?.data ||
-      [],
+    milestones: (() => {
+      // 1. استخراج الكبسولة الداخلية للداتا
+      const innerData = data?.data || data;
+
+      // 2. لو الباك إند باعتها جوه حقل الجمع "milestones"
+      if (innerData?.milestones && Array.isArray(innerData.milestones)) {
+        return innerData.milestones;
+      }
+
+      // 3. لو الباك إند باعت عنصر واحد مفرد "milestone" (زي الـ JSON اللي أنت باعته حالا)
+      if (innerData?.milestone && !Array.isArray(innerData.milestone)) {
+        return [innerData.milestone]; // بنحوله لمصفوفة جواها عنصر واحد فوراً عشان الـ .map() تشتغل!
+      }
+
+      // 4. لو الداتا الراجعة هي الـ Array الصافية مباشرة
+      if (Array.isArray(innerData)) {
+        return innerData;
+      }
+
+      return []; // حزام أمان ملوكي
+    })(),
 
     isLoadingMilestones: isLoading,
     isErrorMilestones: isError,
-
-    // 🎯 الآن التعريفات دي شغالة وسليمة 100%
     createMilestoneMutate: createMutation.mutate,
     isCreating: createMutation.isPending,
-
     submitWorkMutate: submitWorkMutation.mutate,
     isSubmittingWork: submitWorkMutation.isPending,
     approveWorkMutate: approveWorkMutation.mutate,

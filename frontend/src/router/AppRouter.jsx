@@ -13,6 +13,7 @@ import {
   FreelancersList,
   FreelancerProfile,
   FreelancerSettings,
+  PortfolioAiAnalyzer,
   ClientSettings,
   EditProject,
   Inbox,
@@ -29,7 +30,6 @@ const AppRouter = () => (
     {/* الصفحات العامة */}
     <Route path="/" element={<Home />} />
     <Route path="/unauthorized" element={<h1>عفواً، لا تملك صلاحية</h1>} />
-    <Route path="*" element={<NotFound />} />
 
     {/* مسارات الزوار */}
     <Route element={<GuestRoute />}>
@@ -63,7 +63,14 @@ const AppRouter = () => (
     <Route element={<ProtectedRoute allowedRoles={["freelancer"]} />}>
       <Route path="/freelancer-dashboard" element={<FreelancerDashboard />} />
       <Route path="/freelancer-settings" element={<FreelancerSettings />} />
+      <Route
+        path="/freelancer-settings/portfolio-analyzer"
+        element={<PortfolioAiAnalyzer />}
+      />
     </Route>
+
+    {/* مسارات غير موجودة */}
+    <Route path="*" element={<NotFound />} />
   </Routes>
 );
 
