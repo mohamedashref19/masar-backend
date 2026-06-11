@@ -19,3 +19,6 @@ primary_region = 'fra'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 256
+
+  [build]
+  builder = "paketobuildpacks/builder:base"
