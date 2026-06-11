@@ -1,9 +1,9 @@
 import api from "../../../services/api"; // أو مسار الـ axios instance المعتمد عندك
 
-// 1. جلب كل المراحل
 export const getProjectMilestones = async (projectId) => {
+  if (!projectId) return null;
   const response = await api.get(`/projects/${projectId}/milestones`);
-  return response.data;
+  return response.data; // بنرجع الأوبجكت الخام عشان الـ Hook يحلله صح
 };
 
 // 2. إنشاء مرحلة جديدة (POST)
