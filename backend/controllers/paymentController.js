@@ -116,13 +116,14 @@ exports.stripeWebhook = async (req, res) => {
                 milestone.status = 'funded';
                 milestone.fundedAt = Date.now();
                 await milestone.save();
+                console.log("milestone has been funded!!!!!!!!!!")
 
                 await createNotification({
-                    recipient: milestone.freelancer._id || milestone.freelancer,
-                    sender: milestone.client._id || milestone.client,
+                    recipient: milestone.freelancer,
+                    sender: milestone.client,
                     type: 'milestone_funded',
                     title: 'Milestone funded',
-                    message: `Milestone "${milestone.title}" has been funded.`,
+                    message: `Milestone "${milestone.title}" has been funded. You can start working now.`,
                     relatedProject: milestone.project,
                     relatedMilestone: milestone._id,
                 });
