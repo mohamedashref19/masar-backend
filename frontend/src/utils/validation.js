@@ -83,16 +83,21 @@ export const clientSettingsSchema = z.object({
 // 2. للمستقل (بيانات كاملة)
 export const freelancerSettingsSchema = z.object({
   name: z.string().min(3, "الاسم يجب أن يكون 3 أحرف على الأقل"),
-  title: z.string().optional(),
-  bio: z.string().optional(),
+  title: z.string().optional().nullable(),
+  bio: z.string().optional().nullable(),
   hourlyRate: z.coerce
     .number()
     .min(0, "السعر لا يمكن أن يكون بالسالب")
     .optional()
     .or(z.literal("")),
   skills: z.array(z.string()).optional(),
-  githubLink: z.string().url("رابط غير صحيح").optional().or(z.literal("")), // مهم جداً
-  cv: z.any().optional(),
+  githubLink: z.string().optional().or(z.literal("")),
+
+  // 🎯 جعل المصفوفة مرنة عشان الـ Zod ميعملش بلوك للأكشن لو الرابط مش كامل
+  portfolioLinks: z.array(z.string()).optional().default([]),
+
+  // 🎯 تأمين حقل الـ CV ليقبل الـ FileList القادم من الـ input
+  cv: z.any().optional().nullable(),
 });
 
 export const changePasswordSchema = z

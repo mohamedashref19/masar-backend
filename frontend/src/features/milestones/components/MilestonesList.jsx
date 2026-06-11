@@ -10,6 +10,7 @@ export default function MilestonesList({
   isOwner,
   actions,
 }) {
+  console.log("Milestones Data:", milestones); // 🔍 لوج للتأكد من البيانات
   // 🎯 الاستخراج المباشر للنظافة والسرعة
   const { submitWorkMutate, isSubmittingWork } = actions;
 
@@ -37,24 +38,23 @@ export default function MilestonesList({
         const currentStatus =
           milestone.status?.toLowerCase() || "pending_funding";
 
+        // 🎯 1. تحديث الكائنات لتطابق الـ Enum بتاع الباك إند بالملي
         const statusColors = {
           pending_funding: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-          pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
+          funded: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", // الباك إند بيبعت funded مش pending
           submitted: "bg-blue-500/10 text-blue-400 border-blue-500/20",
           approved: "bg-green-500/10 text-green-400 border-green-500/20",
-          completed: "bg-green-500/10 text-green-400 border-green-500/20",
+          released: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
         };
 
         const statusText = {
-          pending_funding: "في انتظار بدء المرحلة والتسليم",
-          pending: "المرحلة نشطة - في انتظار تسليم الشغل",
-          submitted: "قيد المراجعة الفنية من العميل",
-          approved: "مكتملة (تم تحويل الأموال للمستقل)",
-          completed: "مكتملة (تم تحويل الأموال للمستقل)",
+          pending_funding: "في انتظار شحن الميزانية من العميل ⏳",
+          funded: "المرحلة نشطة - في انتظار تسليم الشغل 💻",
+          submitted: "قيد المراجعة الفنية من العميل 👀",
+          approved: "تمت الموافقة - في انتظار صرف الأموال 💸",
+          released: "مكتملة (تم تحويل الأموال للمستقل بنجاح) ✔️",
         };
-
-        const milestoneDate =
-          milestone.deadline || milestone.createdAt || new Date();
+        const milestoneDate = milestone.deadline || milestone.createdAt;
         const formattedMilestoneDeadline = format(
           new Date(milestoneDate),
           "dd MMMM yyyy",
@@ -108,9 +108,9 @@ export default function MilestonesList({
                 </Button>
               )}
 
-              {/* 🚀 أكشن المستقل: تنظيف الـ "actions." لتفادي الـ Runtime Error */}
+              {/* 🚀 أكشن المستقل المحدث */}
               {normalizedRole === "freelancer" &&
-                currentStatus === "pending" && (
+                currentStatus === "funded" && (
                   <Button
                     size="sm"
                     className="bg-blue-600 hover:bg-blue-700 text-white"
