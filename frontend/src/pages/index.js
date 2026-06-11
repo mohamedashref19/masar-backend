@@ -9,6 +9,7 @@ export { default as FreelancersList } from "./FreelancersList";
 export { default as FreelancerProfile } from "./FreelancerProfile";
 export { default as FreelancerDashboard } from "./FreelancerDashboard";
 export { default as FreelancerSettings } from "./FreelancerSettings";
+export { default as PortfolioAiAnalyzer } from "./PortfolioAiAnalyzer";
 /** Projects */
 export { default as ProjectDetails } from "./ProjectDetails";
 export { default as ProjectsList } from "./ProjectsList";
