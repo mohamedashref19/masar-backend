@@ -7,6 +7,11 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
 const createNotification = require('./../utils/createNotification');
+// what i added
+const fs = require('fs');
+const FormData = require('form-data');
+const aiClient = require('./../utils/aiClient');
+//------------------------------------------------
 
 // Modules
 const jwt = require('jsonwebtoken');
@@ -94,6 +99,45 @@ exports.restrictTo = (...roles) => {
         next();
     };
 };
+    // what i added--------------------------------------------
+const analyzeFreelancerSignup = async (user, file) => {
+    if (!user || user.role !== 'freelancer') return null;
+
+    try {
+        const form = new FormData();
+
+        form.append('user_id', user._id.toString());
+        form.append('name', user.name || '');
+        form.append('email', user.email || '');
+
+        form.append('title', user.freelancerProfile?.title || '');
+        form.append('bio', user.freelancerProfile?.bio || '');
+        form.append('skills', JSON.stringify(user.freelancerProfile?.skills || []));
+        form.append('portfolio_links', JSON.stringify(user.freelancerProfile?.portfolioLinks || []));
+        form.append('github_url', user.freelancerProfile?.githubLink || '');
+
+        if (file && file.path) {
+            form.append('cv_file', fs.createReadStream(file.path), {
+                filename: file.originalname,
+                contentType: file.mimetype,
+            });
+        }
+
+        const aiResponse = await aiClient.post('/analyze-portfolio', form, {
+            headers: form.getHeaders(),
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity,
+        });
+
+        return aiResponse.data;
+    } catch (err) {
+        console.error('AI analysis during signup failed:', err.message);
+        return null;
+    }
+};
+//------------------------------------------------
+
+
 
 exports.signup = catchAsync(async (req, res, next) => {
     if (req.body.role === 'admin') {
@@ -143,7 +187,9 @@ exports.signup = catchAsync(async (req, res, next) => {
 
     // 🔹 Create User
     const newUser = await User.create(filteredObj);
-
+    //------------------------------------------------
+    const aiAnalysis = await analyzeFreelancerSignup(newUser, req.file);
+    //------------------------------------------------
     // 🔹 Send OTP Email
     try {
         await new Email(newUser, '').sendOTP(otp);
@@ -153,6 +199,7 @@ exports.signup = catchAsync(async (req, res, next) => {
             message: 'تم إرسال رمز التحقق إلى بريدك الإلكتروني',
             data: {
                 email: newUser.email,
+                aiAnalysis, // Include AI analysis results in the response
             },
         });
     } catch (err) {
