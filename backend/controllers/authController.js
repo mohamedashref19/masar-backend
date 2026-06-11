@@ -192,7 +192,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
         recipient: user._id,
         sender: null,
         type: 'system',
-        title: 'Welcome',
+        title: 'مرحبا',
         message: 'مرحبا بك في منصة مسار، نتمنى لك التوفيق والنجاح',
     });
 

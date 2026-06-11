@@ -167,8 +167,6 @@ exports.createProject = catchAsync(async (req, res, next) => {
     });
 });
 
-
-
 exports.getAllProjects = catchAsync(async (req, res, next) => {
     const features = new apiFeatures(Project.find(), req.query)
         .filter()
@@ -288,8 +286,8 @@ exports.completeProject = catchAsync(async (req, res, next) => {
         recipient: project.assignedFreelancer,
         sender: req.user._id,
         type: 'project_completed',
-        title: 'Project completed',
-        message: `Project "${project.title}" has been completed.`,
+        title: 'تم إكمال المشروع',
+        message: `تم إكمال مشروع "${project.title}".`,
         relatedProject: project._id,
     });
 
@@ -318,8 +316,8 @@ exports.cancelProject = catchAsync(async (req, res, next) => {
         recipient: project.assignedFreelancer,
         sender: req.user._id,
         type: 'project_cancelled',
-        title: 'Project cancelled',
-        message: `Project "${project.title}" has been cancelled.`,
+        title: 'تم إلغاء المشروع',
+        message: `تم إلغاء مشروع "${project.title}".`,
         relatedProject: project._id,
     });
 

@@ -47,8 +47,8 @@ exports.createProposal = catchAsync(async (req, res, next) => {
         recipient: project.client,
         sender: req.user._id,
         type: 'proposal_received',
-        title: 'New proposal received',
-        message: `You received a new proposal for "${project.title}".`,
+        title: 'تم استلام عرض جديد',
+        message: `لقد استلمت عرضًا جديدًا على مشروع "${project.title}".`,
         relatedProject: project._id,
         relatedProposal: newProposal._id,
     });
@@ -129,8 +129,8 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
         recipient: proposal.freelancer,
         sender: req.user._id,
         type: 'proposal_accepted',
-        title: 'Proposal accepted',
-        message: `Your proposal for "${project.title}" was accepted.`,
+        title: 'تم قبول العرض',
+        message: `تم قبول عرضك على مشروع "${project.title}".`,
         relatedProject: project._id,
         relatedProposal: proposal._id,
     });
@@ -139,8 +139,8 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
         recipient: proposal.freelancer,
         sender: req.user._id,
         type: 'project_started',
-        title: 'Project started',
-        message: `Project "${project.title}" is now in progress.`,
+        title: 'بدأ العمل على المشروع',
+        message: `أصبح مشروع "${project.title}" قيد التنفيذ الآن.`,
         relatedProject: project._id,
     });
 
@@ -187,8 +187,8 @@ exports.rejectProposal = catchAsync(async (req, res, next) => {
         recipient: proposal.freelancer,
         sender: req.user._id,
         type: 'proposal_rejected',
-        title: 'Proposal rejected',
-        message: `Your proposal for "${proposal.project.title}" was rejected.`,
+        title: 'تم رفض العرض',
+        message: `تم رفض عرضك على مشروع "${proposal.project.title}".`,
         relatedProject: proposal.project,
         relatedProposal: proposal._id,
     });

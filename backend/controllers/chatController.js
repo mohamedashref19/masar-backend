@@ -105,8 +105,8 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
         recipient: receiverId,
         sender: userId,
         type: 'message_received',
-        title: 'New message',
-        message: 'You received a new message.',
+        title: 'رسالة جديدة',
+        message: 'لقد تلقيت رسالة جديدة.',  
     });
 
     res.status(201).json({
