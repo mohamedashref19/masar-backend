@@ -23,7 +23,7 @@ export default function FreelancersList() {
 
   const { data, isLoading, isError } = useFreelancers(queryString);
   const freelancers = data?.data?.freelancers || data?.freelancers || [];
-
+  console.log("🚀 FreelancersList - Fetched Freelancers:", freelancers);
   // ⚙️ دالة بناء الـ Query String وإرسالها للسيرفر ديناميكياً
   const handleApplyFilters = () => {
     const params = new URLSearchParams();

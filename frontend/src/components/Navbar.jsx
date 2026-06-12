@@ -12,6 +12,7 @@ import {
   FiPlusCircle,
   FiMessageSquare,
   FiBell,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import logo from "../../public/logo.png";
 
@@ -20,7 +21,6 @@ const Navbar = () => {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   const { user } = useSelector((state) => state.auth);
-  console.log("🚀 Navbar - User State:", user);
   const { unreadCount } = useNotifications();
 
   const dispatch = useDispatch();
@@ -31,18 +31,20 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  // دالة التحكم في الإشعارات المأمنة ضد التضارب البرمي
   const toggleNotifications = (e) => {
-    e.stopPropagation(); // 🎯 تريكة خطيرة: تمنع تداخل الأحداث وإغلاق الـ Dropdown فجائياً
+    e.stopPropagation();
     setIsNotifOpen((prev) => !prev);
   };
 
   const isClient = user?.role?.toLowerCase() === "client";
 
+  // 🎯 استخراج حارس الفحص ذكياً وبأمان لتجنب الـ Undefined Errors
+  const isSpamUser = user?.freelancerProfile?.isSpam ?? false;
+
   return (
     <nav
       dir="rtl"
-      className="fixed top-4 left-0 right-0 max-w-7xl mx-auto z-[100] px-4 font-['Outfit'] text-right overflow-hidden "
+      className="fixed top-4 left-0 right-0 max-w-7xl mx-auto z-[100] px-4 font-['Outfit'] text-right"
     >
       {/* 🌟 الهيكل الخارجي العائم (Floating Glass Panel) */}
       <div className="relative rounded-2xl border border-white/[0.05] bg-[#080B10]/70 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] px-6 transition-all duration-300 hover:border-white/[0.08]">
@@ -50,7 +52,7 @@ const Navbar = () => {
         <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
 
         <div className="flex justify-between items-center h-16">
-          {/* 1. اليمين: اللوجو العربي الـ Minimal المطور سيبرانياً */}
+          {/* 1. اليمين: اللوجو */}
           <Link to="/" className="flex items-center gap-2 group">
             <div className="flex items-center gap-2">
               {logo ? (
@@ -122,7 +124,7 @@ const Navbar = () => {
                   </Link>
                 )}
 
-                {/* 🎯 جرس الإشعارات المطور ومؤمن الأكشنز */}
+                {/* جرس الإشعارات */}
                 <div className="relative">
                   <button
                     onClick={toggleNotifications}
@@ -152,7 +154,7 @@ const Navbar = () => {
                   />
                 </div>
 
-                {/* كارت البروفايل العائم (Profile Pill) */}
+                {/* كارت البروفايل العائم */}
                 <div className="flex items-center gap-3 bg-white/[0.02] border border-white/[0.05] rounded-xl py-1.5 pr-3 pl-2 hover:border-white/[0.1] transition-colors">
                   <Link
                     to={isClient ? "/client-settings" : "/freelancer-settings"}
@@ -195,7 +197,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* 3. شاشة الموبايل: أزرار الجرس والقائمة السريعة */}
+          {/* شاشة الموبايل */}
           <div className="md:hidden flex items-center gap-1">
             {user && (
               <div className="relative">
@@ -230,7 +232,32 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 4. لوحة الموبايل المنسدلة كـ Bento Card معلق */}
+      {/* 🎯 3. شريط تحذير الـ AI الحامي (المقيد لحسابات الـ Spam) */}
+      <AnimatePresence>
+        {user && !isClient && isSpamUser && (
+          <motion.div
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="mt-2.5 mx-auto w-full"
+          >
+            <Link
+              to="/freelancer-settings"
+              className="flex items-center justify-center gap-2 bg-red-950/40 hover:bg-red-950/60 backdrop-blur-xl border border-red-500/20 hover:border-red-500/40 p-3 rounded-xl shadow-lg transition-all text-center group cursor-pointer"
+            >
+              <FiAlertTriangle className="text-red-400 animate-bounce text-sm shrink-0" />
+              <p className="text-[11px] md:text-xs font-medium text-red-300 group-hover:text-white transition-colors">
+                تنبيـه أمني: يرجى استكمال مدخلات بياناتك كاملة وبشكل صحيح (الـ
+                CV، المهارات، وروابط الأعمال) لتتمكن من رفع مقترحاتك والتقديم
+                على المشاريع.
+              </p>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* لوحة الموبايل المنسدلة */}
       <AnimatePresence>
         {isOpen && (
           <motion.div

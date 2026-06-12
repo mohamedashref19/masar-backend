@@ -6,8 +6,6 @@ export default function FreelancerCard({ freelancer }) {
   const fProfile = freelancer.freelancerProfile || {};
   const averageRating = fProfile.rating || 0;
 
-  console.log("🚀 FreelancerCard - Freelancer Data:", freelancer);
-
   // دالة تلوين بادج مستوى الخبرة أوتوماتيكياً
   const getExperienceBadge = (level) => {
     if (level === "expert")
