@@ -2,14 +2,18 @@ const Proposal = require('./../models/proposalModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
+const createNotification = require('./../utils/createNotification');
 const User = require('./../models/userModel');
 
 // Models
 const Project = require('./../models/projectModel');
 
+
+
 exports.createProposal = catchAsync(async (req, res, next) => {
     const projectId = req.params.projectId;
     const freelancerId = req.user.id;
+    const freelancer = await User.findById(req.user.id);
     const project = await Project.findById(projectId);
 
     // checking if the project exist
@@ -32,6 +36,10 @@ exports.createProposal = catchAsync(async (req, res, next) => {
         return next(new AppError('You have already applied to this project', 400));
     }
 
+    if (freelancer.freelancerProfile.isSpam === true){
+        return next(new AppError(`You can't send proposals until you provide more data about yourself like cv, portfolio, ...` , 403)) // forbidden
+    }
+
     const newProposal = await Proposal.create({
         project: projectId,
         freelancer: freelancerId,
@@ -39,6 +47,17 @@ exports.createProposal = catchAsync(async (req, res, next) => {
         price: req.body.price,
         duration: req.body.duration,
     });
+
+    await createNotification({
+        recipient: project.client,
+        sender: req.user._id,
+        type: 'proposal_received',
+        title: 'تم استلام عرض جديد',
+        message: `لقد استلمت عرضًا جديدًا على مشروع "${project.title}".`,
+        relatedProject: project._id,
+        relatedProposal: newProposal._id,
+    });
+
     res.status(201).json({
         status: 'success',
         data: { proposal: newProposal },
@@ -110,6 +129,26 @@ exports.acceptProposal = catchAsync(async (req, res, next) => {
         },
         { status: 'rejected' },
     );
+
+    await createNotification({
+        recipient: proposal.freelancer,
+        sender: req.user._id,
+        type: 'proposal_accepted',
+        title: 'تم قبول العرض',
+        message: `تم قبول عرضك على مشروع "${project.title}".`,
+        relatedProject: project._id,
+        relatedProposal: proposal._id,
+    });
+
+    await createNotification({
+        recipient: proposal.freelancer,
+        sender: req.user._id,
+        type: 'project_started',
+        title: 'بدأ العمل على المشروع',
+        message: `أصبح مشروع "${project.title}" قيد التنفيذ الآن.`,
+        relatedProject: project._id,
+    });
+
     //send Email
     try {
         const url = `${req.protocol}://${req.get('host')}/projects/${project._id}`;
@@ -148,6 +187,16 @@ exports.rejectProposal = catchAsync(async (req, res, next) => {
     }
     proposal.status = 'rejected';
     await proposal.save();
+
+    await createNotification({
+        recipient: proposal.freelancer,
+        sender: req.user._id,
+        type: 'proposal_rejected',
+        title: 'تم رفض العرض',
+        message: `تم رفض عرضك على مشروع "${proposal.project.title}".`,
+        relatedProject: proposal.project,
+        relatedProposal: proposal._id,
+    });
 
     res.status(200).json({
         status: 'success',

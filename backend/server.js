@@ -13,7 +13,7 @@ const DB = process.env.DATABASE.replace('<db_username>', process.env.DATABASE_US
 
 mongoose.set('strictQuery', false);
 mongoose
-    .connect(DB)
+    .connect(DB, { family: 4 })
     .then(() => console.log('DB connection successful!'))
     .catch((err) => console.log('DB connection FAILED!!', err));
 

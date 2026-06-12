@@ -6,6 +6,7 @@ const Payment = require('../models/paymentModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const createNotification = require('../utils/createNotification');
 
 const User = require('../models/userModel');
 const Email = require('../utils/email');
@@ -115,6 +116,18 @@ exports.stripeWebhook = async (req, res) => {
                 milestone.status = 'funded';
                 milestone.fundedAt = Date.now();
                 await milestone.save();
+                console.log("milestone has been funded!!!!!!!!!!")
+
+                await createNotification({
+                    recipient: milestone.freelancer,
+                    sender: milestone.client,
+                    type: 'milestone_funded',
+                    title: 'تم تمويل المرحلة',
+                    message: `تم تمويل المرحلة "${milestone.title}". يمكنك البدء في العمل الآن.`,
+                    relatedProject: milestone.project,
+                    relatedMilestone: milestone._id,
+                });
+
                 try {
                     const freelancer = await User.findById(payment.freelancer);
 
@@ -201,6 +214,17 @@ exports.releaseMilestonePayment = catchAsync(async (req, res, next) => {
     payment.platformFee = platformFee / 100;
     await payment.save();
 
+    await createNotification({
+        recipient: milestone.freelancer._id || milestone.freelancer,
+        sender: req.user._id,
+        type: 'payment_released',
+        title: 'تم تحويل الدفعة',
+        message: `تم تحويل الدفعة الخاصة بالمرحلة "${milestone.title}".`,
+        relatedProject: milestone.project,
+        relatedMilestone: milestone._id,
+    });
+
+    
     try {
         const url = `${req.protocol}://${req.get('host')}/wallet`;
 

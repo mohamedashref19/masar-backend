@@ -6,6 +6,7 @@ const filterObject = require('./../utils/filterObj');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
+const createNotification = require('./../utils/createNotification');
 
 // Modules
 const jwt = require('jsonwebtoken');
@@ -166,6 +167,7 @@ exports.signup = catchAsync(async (req, res, next) => {
             },
         });
     } catch (err) {
+        console.error(err);
         newUser.otp = undefined;
         newUser.otpExpires = undefined;
         await newUser.save({ validateBeforeSave: false });
@@ -197,6 +199,14 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
 
     const url = `${req.protocol}://${req.get('host')}/`;
     await new Email(user, url).sendWelcome();
+    await createNotification({
+        recipient: user._id,
+        sender: null,
+        type: 'system',
+        title: 'مرحبا',
+        message: 'مرحبا بك في منصة مسار، نتمنى لك التوفيق والنجاح',
+    });
+
 
     signTokenAndSend(user, res, 200);
 });

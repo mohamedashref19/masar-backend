@@ -23,28 +23,24 @@ const stripeConnectRouter = require('./routes/stripeConnectRoutes');
 const aiRouter = require('./routes/aiRoutes');
 const notificationRouter = require('./routes/notificationRoutes');
 
-
-
 // Controllers
 const paymentController = require('./controllers/paymentController');
 
 const app = express();
+app.set('trust proxy', 1);
 
 //Security Middlewares
 app.use(helmet());
 app.use(
     cors({
-        // لازم نحدد رابط الفرونت إند بتاعك بالظبط
-        origin: 'http://localhost:5173',
+        origin: ['http://localhost:5173', process.env.CLIENT_URL],
 
-        // السطر ده هو اللي هيحل مشكلة الـ Credential
         credentials: true,
 
         methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization'],
     }),
 );
-
 
 // Rate limiting
 const limiter = rateLimit({
@@ -59,11 +55,10 @@ if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
-
 app.post(
-  '/api/v1/webhooks/stripe',
-  express.raw({ type: 'application/json' }),
-  paymentController.stripeWebhook
+    '/api/v1/webhooks/stripe',
+    express.raw({ type: 'application/json' }),
+    paymentController.stripeWebhook,
 );
 
 //  Body Parser
@@ -78,6 +73,9 @@ app.use(cookieParser(process.env.JWT_COOKIE_SECRET));
 app.use(mongoSanitize());
 
 //  Routes
+app.get('/', (req, res) => {
+    res.status(200).send('Masar API is running successfully! 🚀');
+});
 
 app.use('/api/v1/ai', aiRouter);
 app.use(`/api/v1/users`, userRouter);

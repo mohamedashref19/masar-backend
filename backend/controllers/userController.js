@@ -13,6 +13,7 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const Email = require('./../utils/email');
 const apiFeatures = require('./../utils/apiFeatures');
+const createNotification = require('./../utils/createNotification');
 
 // Modules
 const jwt = require('jsonwebtoken');
@@ -84,16 +85,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
         filteredObj.freelancerProfile.cv = req.file.filename;
     }
 
-    // const user = await User.findOneAndUpdate({ _id: req.user._id }, filteredObj, {
-    //     runValidators: true,
-    //     returnDocument: 'after',
-    // });
-
-    // return res.status(200).json({
-    //     status: 'success',
-    //     data: { user },
-    // });
-
     const user = await User.findOneAndUpdate({ _id: req.user._id }, filteredObj, {
     runValidators: true,
     returnDocument: 'after',
@@ -156,6 +147,14 @@ if (user.role === 'freelancer') {
             });
 
             aiAnalysis = aiResponse.data;
+
+            await createNotification({
+                recipient: user._id,
+                type: 'system',
+                title: 'اكتمل تحليل الملف الشخصي',
+                message: 'تم تحليل ملفك الشخصي ومعرض أعمالك بنجاح.',
+            });
+
         } catch (err) {
             aiAnalysisError =
                 err.response?.data?.detail ||
@@ -165,14 +164,19 @@ if (user.role === 'freelancer') {
     }
 }
 
-return res.status(200).json({
-    status: 'success',
-    data: {
-        user,
-        aiAnalysis,
-        aiAnalysisError,
-    },
-});
+    // The account is spam or not
+
+    user.freelancerProfile.isSpam = aiAnalysis?.spam_check?.is_suspicious ?? false;
+    await user.save({ validateBeforeSave: false });
+
+    return res.status(200).json({
+        status: 'success',
+        data: {
+            user,
+            aiAnalysis,
+            aiAnalysisError,
+        },
+    });
 });
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
