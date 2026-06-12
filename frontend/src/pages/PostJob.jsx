@@ -1,245 +1,132 @@
-import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom"; // 🔥 أضفنا useLocation لقطف داتا الشات بوت
+import { toast } from "react-hot-toast";
+import { FiPlus, FiAlertTriangle } from "react-icons/fi";
+
 import { useCreateProject } from "../features/projects/hooks/useCreateProject";
-import Button from "../components/Button";
-import toast from "react-hot-toast";
+import CreateProjectForm from "../features/projects/components/CreateProjectForm";
 
 export default function PostJob() {
-  const location = useLocation();
-  const { mutate: createProjectMutate, isPending } = useCreateProject();
-  const aiPrefilledData = location.state?.prefilledProjectData || null;
+  const { mutate: createProject, isPending } = useCreateProject();
+  const navigate = useNavigate();
+  const location = useLocation(); // 🎯 هنا بنستقبل الـ State المبعوتة أثناء الـ Navigation
 
-  const { register, handleSubmit, reset } = useForm({
-    defaultValues: aiPrefilledData || {
-      title: "",
-      description: "",
-      category: "",
-      budget: "",
-      deadline: "",
-      skillsRequired: "",
-      complexity: "Medium",
-      experience_required: "Intermediate",
-    },
-  });
+  // 🤖 استقبال الداتا الحقيقية من الـ chatbot pipeline أو تعيينها كـ null لو مش موجودة
+  const chatbotData = location.state?.chatbotProjectData || null;
 
-  useEffect(() => {
-    if (aiPrefilledData) {
-      // 🎯 تحويل مصفوفة المهارات لنص مفصول بفاصلة ليعرض بسلاسة داخل الـ Input
-      const normalizedData = {
-        ...aiPrefilledData,
-        skillsRequired: Array.isArray(aiPrefilledData.skillsRequired)
-          ? aiPrefilledData.skillsRequired.join(", ")
-          : aiPrefilledData.skillsRequired || "",
-      };
-      reset(normalizedData);
-      toast.success(
-        "✨ مذهل! قام ذكاء مسار بتعبئة الحقول من محادثتك الحية بنسبة 100%",
-      );
-    }
-  }, [aiPrefilledData, reset]);
+  // 🎯 دالة سحرية لتنظيف وتحضير المهارات (Skills Cleanup)
+  // لو الشات بوت باعتها مصفوفة [React, Node] يحولها لنص "React, Node" عشان الـ Input يفهمها
+  const normalizeSkills = (skills) => {
+    if (Array.isArray(skills)) return skills.join(", ");
+    if (typeof skills === "string") return skills;
+    return "";
+  };
 
-  const onSubmit = (formData) => {
-    console.log("البيانات المستلمة من الفورم قبل التنظيف والـ POST:", formData);
-
-    // الحقول الأخرى كما هي...
-    const skillsArray =
-      typeof formData.skillsRequired === "string"
-        ? formData.skillsRequired
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : Array.isArray(formData.skillsRequired)
-          ? formData.skillsRequired
-          : [];
-
-    let cleanComplexity = "Medium";
-    const rawComplexity = String(formData.complexity).toLowerCase();
-    if (rawComplexity.includes("low") || rawComplexity.includes("easy"))
-      cleanComplexity = "Low";
-    if (rawComplexity.includes("high") || rawComplexity.includes("hard"))
-      cleanComplexity = "High";
-
-    let cleanExperience = "Intermediate";
-    const rawExperience = String(formData.experience_required).toLowerCase();
-    if (rawExperience.includes("begin") || rawExperience.includes("entry"))
-      cleanExperience = "Beginner";
-    if (rawExperience.includes("expert")) cleanExperience = "Expert";
-
-    const cleanBudget = formData.budget ? Number(formData.budget) : 1000;
-
-    // 🎯 الحل المعتمد والمطابق لقواعد الـ Purity في React 19:
-    let cleanDeadline;
-
-    // لقطة الوقت الحالي بنحسبها في متغير منفصل تماماً جوه الـ Event Handler لمنع الـ Render Violation
-    const currentTimeStamp = new Date().getTime();
-
-    if (formData.deadline) {
-      const chosenDate = new Date(formData.deadline);
-
-      // تأمين فارق التوقيت وثبيت نهاية اليوم
-      chosenDate.setHours(23, 59, 59, 999);
-
-      // 🎯 المقارنة هنا أصبحت بين متغيرين (Pure Numbers) ومفيش أي استدعاء لـ دالة خارجية جوه الـ If
-      if (chosenDate.getTime() <= currentTimeStamp) {
-        const futureFallback = new Date();
-        futureFallback.setDate(futureFallback.getDate() + 30);
-        cleanDeadline = futureFallback.toISOString();
-      } else {
-        cleanDeadline = chosenDate.toISOString();
+  // 🔄 تشكيل الداتا النهائية الممررة للفورم (إما الداتا الحقيقية المفرومة أو فورم فاضي تماماً)
+  const prefilledData = chatbotData
+    ? {
+        title: chatbotData.title || "",
+        description: chatbotData.description || "",
+        category: chatbotData.category || "",
+        budget: chatbotData.budget || "",
+        deadline: chatbotData.deadline || "",
+        skillsRequired: normalizeSkills(chatbotData.skillsRequired),
+        complexity: chatbotData.complexity || "Medium",
+        experience_required: chatbotData.experience_required || "Intermediate",
       }
-    } else {
-      const futureFallback = new Date();
-      futureFallback.setDate(futureFallback.getDate() + 30);
-      cleanDeadline = futureFallback.toISOString();
-    }
+    : null; // ❌ لو الشات بوت مش باعت حاجة، القيمة هتبقا null والفورم هيفتح بـ defaultValues الفاضية
 
-    // تجميع الـ Payload وإرساله للـ mutate...
-    const finalPayload = {
-      title: formData.title,
-      description: formData.description,
-      category: formData.category || "Web Development",
-      budget: cleanBudget,
-      deadline: cleanDeadline,
-      complexity: cleanComplexity,
-      skillsRequired: skillsArray,
-      required_skills: skillsArray,
-      experience_required: cleanExperience,
-    };
+  const handleCreateProject = (formData) => {
+    toast.loading(
+      "جاري نشر كراسة الشروط الفنية وتوثيق المشروع على السيرفر... 🚀",
+    );
 
-    toast.loading("جاري نشر مشروعك الذكي وتوثيقه على السيرفر... 🚀");
-
-    createProjectMutate(finalPayload, {
-      onSuccess: () => {
+    createProject(formData, {
+      onSuccess: (data) => {
         toast.dismiss();
-        toast.success("تم نشر مشروعك بنجاح على منصة مسار! 🎉");
-        reset();
+        toast.success("✨ مذهل! تم نشر مشروعك الذكي بنجاح على منصة مسار.");
+        if (data?.project?._id) {
+          navigate(`/projects/${data.project._id}`);
+        } else {
+          navigate("/dashboard");
+        }
       },
       onError: (error) => {
         toast.dismiss();
-        toast.error(error?.message || "حدث خطأ أثناء النشر على السيرفر.");
+        toast.error(
+          error?.message || "حدث خطأ غير متوقع أثناء محاولة النشر المباشر.",
+        );
       },
     });
   };
 
   return (
-    <div className="container mx-auto py-12 px-4 mt-16 max-w-3xl">
-      <div className="bg-primary p-8 rounded-xl border border-slate-800 shadow-xl">
-        {aiPrefilledData && (
-          <div className="mb-8 p-4 bg-secondary/10 border border-secondary/20 rounded-xl flex items-start gap-4">
-            <span className="text-3xl">🤖</span>
+    <div
+      dir="rtl"
+      className="min-h-screen bg-[#080B10] text-slate-100 font-['Outfit'] relative selection:bg-secondary/30 text-right mt-16 md:mt-20 overflow-x-hidden"
+    >
+      {/* هالات إضاءة خلفية محيطية */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 right-1/4 h-[450px] w-[450px] rounded-full bg-secondary/5 blur-[130px] animate-pulse" />
+        <div className="absolute bottom-[-100px] left-1/4 h-[400px] w-[400px] rounded-full bg-accent/5 blur-[120px]" />
+      </div>
+
+      <div className="container mx-auto py-12 md:py-16 px-4 md:px-6 max-w-4xl relative z-10">
+        {/* هيدر الصفحة */}
+        <div className="mb-10 pb-5 border-b border-white/[0.05] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 h-full w-[100px] bg-secondary/5 blur-[50px] pointer-events-none" />
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-secondary/10 border border-secondary/20 rounded-2xl flex items-center justify-center text-secondary text-2xl shadow-[0_8px_30px_rgba(228,255,0,0.05)]">
+              <FiPlus />
+            </div>
             <div>
-              <h3 className="text-secondary font-bold text-sm mb-1">
-                تعبئة ذكية نشطة (Gemini Pipeline)
+              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
+                نشر مشروع تقني جديد
+              </h1>
+              <p className="text-body mt-1.5 text-xs md:text-sm font-light leading-relaxed max-w-xl">
+                قم بصياغة شروطك الفنية واطرح كراسة المشروع بدقة. سيقوم ذكاء مسار
+                بمطابقتك مع أفضل المستقلين والنخبة التقنية المسجلة بالمنصة
+                فوراً.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* 🤖 كارت الإشعار الذكي: يظهر فقط وفقط لو الداتا جاية فعلاً من الشات بوت */}
+        {chatbotData && (
+          <div className="mb-10 p-5 bg-[#0D121A] border border-secondary/20 rounded-2xl flex flex-col md:flex-row items-center md:items-start gap-5 shadow-[0_20px_60px_-10px_rgba(228,255,0,0.02)] animate-fade-in-up">
+            <div className="w-14 h-14 bg-secondary/10 border border-secondary/20 text-secondary rounded-2xl flex items-center justify-center text-2xl shadow-inner shrink-0 mt-1">
+              🤖
+            </div>
+            <div className="flex-1 text-center md:text-right">
+              <h3 className="text-secondary font-bold text-base flex items-center gap-2 justify-center md:justify-start">
+                تم تعبئة الحقول ذكياً بواسطة مسار
               </h3>
-              <p className="text-slate-300 text-xs leading-relaxed">
-                قمت بتحليل المحادثة وصياغة وصف فني دقيق، واختيار المهارات
-                والميزانية الأنسب. يمكنك التعديل على أي خانة بحرية قبل الإطلاق
-                المباشر.
+              <p className="text-slate-300 text-xs mt-1.5 leading-relaxed font-light">
+                لقد قمنا بتحليل تفاصيل محادثتك مع المساعد الذكي وصياغتها تقنياً.
+                يمكنك مراجعة البيانات وتعديلها بحرية قبل إطلاق المشروع لايف.
               </p>
             </div>
           </div>
         )}
 
-        <h2 className="text-2xl font-bold text-heading mb-6 border-b border-slate-800 pb-4">
-          نشر مشروع جديد
-        </h2>
+        {/* الفورم الأساسي الـ Bento Block */}
+        <div className="bg-[#0D121A] border border-white/[0.05] rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
-              <label className="block text-slate-300 text-sm mb-2">
-                عنوان المشروع
-              </label>
-              <input
-                {...register("title")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm text-right"
-              />
-            </div>
+          {/* تمرير الداتا النظيفة للفورم الداخلي */}
+          <CreateProjectForm
+            onSubmit={handleCreateProject}
+            isLoading={isPending}
+            prefilledData={prefilledData}
+          />
+        </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-slate-300 text-sm mb-2">
-                الوصف المتوقع للمشروع
-              </label>
-              <textarea
-                {...register("description")}
-                rows={5}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm leading-relaxed text-right"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm mb-2">القسم</label>
-              <input
-                {...register("category")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm mb-2">
-                الميزانية المقترحة ($)
-              </label>
-              <input
-                type="number"
-                {...register("budget")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm mb-2">
-                تاريخ التسليم المتوقع
-              </label>
-              <input
-                type="date"
-                {...register("deadline")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm mb-2">
-                المهارات المستخرجة (مفصول بفاصلة)
-              </label>
-              <input
-                {...register("skillsRequired")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm mb-2">
-                مستوى التعقيد
-              </label>
-              <input
-                {...register("complexity")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-300 text-sm mb-2">
-                الخبرة المطلوبة
-              </label>
-              <input
-                {...register("experience_required")}
-                className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white focus:border-secondary text-sm"
-              />
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            variant="accent"
-            disabled={isPending}
-            className="w-full mt-8 py-3 text-sm font-bold disabled:opacity-50"
-          >
-            {isPending
-              ? "جاري النشر الفعلي..."
-              : "اعتماد ونشر المشروع النهائي ✔️"}
-          </Button>
-        </form>
+        {/* شارة الأمان السفلية */}
+        <div className="mt-8 text-center flex items-center justify-center gap-1.5 text-[10px] text-slate-600 font-semibold uppercase tracking-wider mx-auto w-fit">
+          <FiAlertTriangle className="text-secondary/70" /> مسار Escrow Secured
+          & Technical Vetting
+        </div>
       </div>
     </div>
   );

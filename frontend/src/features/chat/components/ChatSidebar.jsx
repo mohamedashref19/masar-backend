@@ -1,13 +1,21 @@
 export default function ChatSidebar({ conversations, activeId, onSelect }) {
   return (
-    <div className="w-full md:w-80 bg-slate-900/50 backdrop-blur-md border-l border-slate-800 h-[calc(100vh-5rem)] overflow-y-auto">
-      <div className="p-4 border-b border-slate-800">
-        <h2 className="text-xl font-bold text-heading">المحادثات</h2>
+    <div
+      dir="rtl"
+      className="w-full h-full bg-[#0D121A]/40 backdrop-blur-md flex flex-col text-right"
+    >
+      {/* هيدر القائمة */}
+      <div className="p-4 border-b border-white/[0.05] bg-slate-950/20">
+        <h2 className="text-base font-black text-white tracking-tight">
+          غرف النقاش الفني
+        </h2>
       </div>
-      <div className="divide-y divide-slate-800/60">
+
+      {/* لستة المحادثات */}
+      <div className="flex-1 overflow-y-auto divide-y divide-white/[0.02] scrollbar-thin scrollbar-thumb-white/5">
         {conversations.length === 0 ? (
-          <p className="p-4 text-sm text-slate-500 text-center">
-            لا توجد محادثات حالياً
+          <p className="p-8 text-xs text-slate-500 text-center font-light">
+            لا توجد غرف محادثات مفتوحة حالياً.
           </p>
         ) : (
           conversations.map((chat) => {
@@ -16,21 +24,25 @@ export default function ChatSidebar({ conversations, activeId, onSelect }) {
               <div
                 key={chat._id}
                 onClick={() => onSelect(chat._id)}
-                className={`p-4 flex items-center gap-3 cursor-pointer transition-all ${
+                className={`p-4 flex items-center gap-3 cursor-pointer transition-all border-l-4 ${
                   isActive
-                    ? "bg-slate-800/80 border-r-4 border-secondary"
-                    : "hover:bg-slate-800/30"
+                    ? "bg-white/[0.03] border-secondary shadow-inner"
+                    : "border-transparent hover:bg-white/[0.01]"
                 }`}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-200">
+                {/* الأفاتار الحاضن لأول حرفين من عنوان المشروع */}
+                <div className="w-9 h-9 rounded-xl bg-slate-950 border border-white/[0.08] flex items-center justify-center font-bold text-slate-300 text-xs shrink-0 group-hover:border-secondary/30 transition-colors">
                   {chat.project?.title?.substring(0, 2) || "💬"}
                 </div>
+
+                {/* تفاصيل المحادثة */}
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-slate-200 truncate">
+                  <h4 className="text-xs font-bold text-slate-200 truncate">
                     {chat.project?.title || "مشروع غير معروف"}
                   </h4>
-                  <p className="text-xs text-slate-400 truncate mt-1">
-                    {chat.lastMessage?.content || "اضغط لبدء المحادثة..."}
+                  <p className="text-[11px] text-slate-500 truncate mt-1 font-light">
+                    {chat.lastMessage?.content ||
+                      "اضغط لمزامنة وبدء الشات الحركي..."}
                   </p>
                 </div>
               </div>
