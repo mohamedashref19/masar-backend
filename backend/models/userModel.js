@@ -30,6 +30,11 @@ const freelancerProfileSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+
+        isSpam: {
+            type: Boolean,
+            default: true
+        }
     },
 
     { _id: false },

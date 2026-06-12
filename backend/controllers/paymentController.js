@@ -122,8 +122,8 @@ exports.stripeWebhook = async (req, res) => {
                     recipient: milestone.freelancer,
                     sender: milestone.client,
                     type: 'milestone_funded',
-                    title: 'Milestone funded',
-                    message: `Milestone "${milestone.title}" has been funded. You can start working now.`,
+                    title: 'تم تمويل المرحلة',
+                    message: `تم تمويل المرحلة "${milestone.title}". يمكنك البدء في العمل الآن.`,
                     relatedProject: milestone.project,
                     relatedMilestone: milestone._id,
                 });
@@ -218,8 +218,8 @@ exports.releaseMilestonePayment = catchAsync(async (req, res, next) => {
         recipient: milestone.freelancer._id || milestone.freelancer,
         sender: req.user._id,
         type: 'payment_released',
-        title: 'Payment released',
-        message: `Payment for milestone "${milestone.title}" has been released.`,
+        title: 'تم تحويل الدفعة',
+        message: `تم تحويل الدفعة الخاصة بالمرحلة "${milestone.title}".`,
         relatedProject: milestone.project,
         relatedMilestone: milestone._id,
     });

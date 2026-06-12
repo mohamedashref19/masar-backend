@@ -38,8 +38,8 @@ exports.createMilestone = catchAsync(async (req, res, next) => {
         recipient: project.assignedFreelancer,
         sender: req.user._id,
         type: 'milestone_created',
-        title: 'New milestone created',
-        message: `A new milestone "${milestone.title}" was created.`,
+        title: 'تم إنشاء مرحلة جديدة',
+        message: `تم إنشاء مرحلة جديدة بعنوان "${milestone.title}".`,
         relatedProject: project._id,
         relatedMilestone: milestone._id,
     });
@@ -104,8 +104,8 @@ exports.submitMilestone = catchAsync(async (req, res, next) => {
         recipient: milestone.client._id || milestone.client,
         sender: req.user._id,
         type: 'milestone_submitted',
-        title: 'Milestone submitted',
-        message: `Milestone "${milestone.title}" was submitted for review.`,
+        title: 'تم تسليم المرحلة',
+        message: `تم تسليم المرحلة "${milestone.title}" للمراجعة.`,
         relatedProject: milestone.project,
         relatedMilestone: milestone._id,
     });
@@ -139,8 +139,8 @@ exports.approveMilestone = catchAsync(async (req, res, next) => {
         recipient: milestone.freelancer._id || milestone.freelancer,
         sender: req.user._id,
         type: 'milestone_approved',
-        title: 'Milestone approved',
-        message: `Milestone "${milestone.title}" was approved.`,
+        title: 'تمت الموافقة على المرحلة',
+        message: `تمت الموافقة على المرحلة "${milestone.title}".`,
         relatedProject: milestone.project,
         relatedMilestone: milestone._id,
     });
