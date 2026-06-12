@@ -1,7 +1,7 @@
 import RegisterForm from "../features/auth/components/RegisterForm";
 import { useRegister } from "../features/auth/hooks/useRegister";
-import { motion } from "framer-motion"; // 🎯 حقن الحركة المتناسقة مع بقية النظام
-import logo from "../../public/logo.png"; // 🌟 استيراد شعار مسار لاستخدامه في الهيدر الترحيبي
+import { motion } from "framer-motion";
+import logo from "../../public/logo.png";
 export default function Register() {
   // بنستدعي الـ Hook الفعلي المسئول عن تسجيل الحساب
   const { mutate: registerUser, isPending } = useRegister();
