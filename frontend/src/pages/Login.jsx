@@ -1,6 +1,7 @@
 import LoginForm from "../features/auth/components/LoginForm";
 import { useLogin } from "../features/auth/hooks/useLogin";
 import { motion } from "framer-motion"; // 🎯 حقن الحركة المتناسقة مع بقية الصفحات
+import logo from "../../public/logo.png"; // 🌟 استيراد شعار مسار لاستخدامه في الهيدر الترحيبي
 
 export default function Login() {
   const { mutate: login, isPending } = useLogin();
@@ -30,8 +31,12 @@ export default function Login() {
 
           {/* هيدر ترحيبي صغير أعلى الـ Form لتنظيم المحتوى بصرياً */}
           <div className="text-center mb-8">
-            <div className="inline-flex w-12 h-12 bg-gradient-to-tr from-secondary to-[#BDD400] rounded-2xl items-center justify-center text-slate-950 font-black text-xl shadow-[0_4px_20px_rgba(228,255,0,0.15)] mb-4">
-              M
+            <div className="inline-flex w-35 h-12   items-center justify-center  mb-4">
+              <img
+                src={logo}
+                alt="شعار مسار"
+                style={{ width: "68px", height: "48px" }}
+              />
             </div>
             <h2 className="text-2xl font-black text-white tracking-tight">
               مرحباً بك في مسار

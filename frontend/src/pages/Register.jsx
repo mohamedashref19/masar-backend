@@ -1,7 +1,7 @@
 import RegisterForm from "../features/auth/components/RegisterForm";
 import { useRegister } from "../features/auth/hooks/useRegister";
 import { motion } from "framer-motion"; // 🎯 حقن الحركة المتناسقة مع بقية النظام
-
+import logo from "../../public/logo.png"; // 🌟 استيراد شعار مسار لاستخدامه في الهيدر الترحيبي
 export default function Register() {
   // بنستدعي الـ Hook الفعلي المسئول عن تسجيل الحساب
   const { mutate: registerUser, isPending } = useRegister();
@@ -31,8 +31,12 @@ export default function Register() {
 
           {/* هيدر ترحيبي منسق لتوجيه المستخدم قبل إدخال الداتا */}
           <div className="text-center mb-6">
-            <div className="inline-flex w-11 h-11 bg-gradient-to-tr from-secondary to-[#BDD400] rounded-2xl items-center justify-center text-slate-950 font-black text-lg shadow-[0_4px_20px_rgba(228,255,0,0.15)] mb-3">
-              M
+            <div className="inline-flex w-35 h-12   items-center justify-center  mb-4">
+              <img
+                src={logo}
+                alt="شعار مسار"
+                style={{ width: "68px", height: "48px" }}
+              />
             </div>
             <h2 className="text-xl font-black text-white tracking-tight">
               إنشاء حساب جديد على مسار
