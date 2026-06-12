@@ -3,6 +3,7 @@ import api from "../../../services/api";
 export const getMe = async () => {
   // الريكويست ده هيبعت الكوكيز أوتوماتيك بفضل withCredentials
   const response = await api.get("/users/me");
+  console.log(response.data);
   return response.data;
 };
 // 1. دالة التسجيل

@@ -1,127 +1,195 @@
 import { useState } from "react";
 import { useFreelancers } from "../features/freelancers/hooks/useFreelancers";
 import FreelancerCard from "../features/freelancers/components/FreelancerCard";
-import { Button, Input } from "../components";
+import { Button } from "../components";
+import {
+  FiSearch,
+  FiSliders,
+  FiDollarSign,
+  FiAward,
+  FiBookOpen,
+} from "react-icons/fi";
 
 export default function FreelancersList() {
-  // حالة لحفظ مدخلات الفلتر
+  // 🎯 الفلاتر مطابقة تماماً لمسميات الـ API Features في الباك إند
   const [filters, setFilters] = useState({
-    skill: "",
-    maxRate: "",
+    skills: "",
+    title: "",
+    experienceLevel: "",
+    hourlyRate: "",
   });
 
-  // حالة لحفظ الـ Query String النهائي اللي هيتبعت للـ API
   const [queryString, setQueryString] = useState("");
 
   const { data, isLoading, isError } = useFreelancers(queryString);
-  const freelancers = data?.data?.freelancers || []; // افترضت إن الباك إند بيرجعها كده
+  const freelancers = data?.data?.freelancers || data?.freelancers || [];
 
-  // دالة تطبيق الفلاتر
+  // ⚙️ دالة بناء الـ Query String وإرسالها للسيرفر ديناميكياً
   const handleApplyFilters = () => {
     const params = new URLSearchParams();
 
-    if (filters.skill) {
-      params.append("freelancerProfile.skills", filters.skill); // بناءً على الباك إند
-    }
-    if (filters.maxRate) {
-      params.append("freelancerProfile.hourlyRate[lte]", filters.maxRate);
-    }
+    if (filters.skills) params.append("skills", filters.skills);
+    if (filters.title) params.append("title", filters.title);
+    if (filters.experienceLevel)
+      params.append("experienceLevel", filters.experienceLevel);
+    if (filters.hourlyRate) params.append("hourlyRate", filters.hourlyRate);
 
     setQueryString(params.toString());
   };
 
-  // دالة مسح الفلاتر
   const handleClearFilters = () => {
-    setFilters({ skill: "", maxRate: "" });
+    setFilters({ skills: "", title: "", experienceLevel: "", hourlyRate: "" });
     setQueryString("");
   };
 
   return (
-    <div className="container mx-auto py-12 px-4 mt-16">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-heading">المستقلون المتاحون</h1>
-        <p className="text-slate-400 mt-2">
-          ابحث عن أفضل المواهب لتنفيذ مشروعك القادم.
-        </p>
+    <div
+      dir="rtl"
+      className="min-h-screen bg-[#080B10] text-slate-100 py-12 px-4 mt-16 max-w-7xl mx-auto text-right selection:bg-secondary/30"
+    >
+      {/* الهيدر الفخم */}
+      <div className="mb-12 border-b border-white/[0.05] pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <span className="text-xs font-bold text-secondary uppercase tracking-widest">
+            منظومة فرز النخبة التقنية
+          </span>
+          <h1 className="text-3xl font-black text-white mt-1">
+            المستقلون المتاحون
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            ابحث وافحص السير الذاتية لأفضل الكوادر المفحوصة بالذكاء الاصطناعي.
+          </p>
+        </div>
+        <div className="text-xs text-slate-500 bg-white/[0.02] border border-white/[0.05] px-4 py-2 rounded-xl">
+          نتائج البحث:{" "}
+          <span className="text-secondary font-bold">
+            {freelancers.length} مستقل
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* شريط الفلاتر (Sidebar) */}
-        <div className="w-full lg:w-1/4">
-          <div className="bg-primary p-6 rounded-xl border border-slate-800 sticky top-24">
-            <h2 className="text-lg font-bold text-white mb-4 border-b border-slate-800 pb-2">
-              فلاتر البحث
-            </h2>
-
-            <div className="space-y-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-slate-300">
-                  المهارة (Skill)
-                </label>
-                <input
-                  type="text"
-                  placeholder="مثال: React"
-                  className="bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-secondary"
-                  value={filters.skill}
-                  onChange={(e) =>
-                    setFilters({ ...filters, skill: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-slate-300">
-                  أقصى سعر للساعة ($)
-                </label>
-                <input
-                  type="number"
-                  placeholder="مثال: 20"
-                  className="bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-secondary"
-                  value={filters.maxRate}
-                  onChange={(e) =>
-                    setFilters({ ...filters, maxRate: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <Button
-                  variant="accent"
-                  className="flex-1 py-2"
-                  onClick={handleApplyFilters}
-                >
-                  تطبيق
-                </Button>
-                <Button
-                  className="bg-slate-800 text-white flex-1 py-2"
-                  onClick={handleClearFilters}
-                >
-                  مسح
-                </Button>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+        {/* 🌟 شريط الفلاتر الجانبي (Premium Bento Sidebar) */}
+        <aside className="bg-[#0D121A] border border-white/[0.05] p-6 rounded-2xl shadow-xl space-y-5 sticky top-24">
+          <div className="flex items-center gap-2 border-b border-white/[0.05] pb-3 text-white font-bold text-sm">
+            <FiSliders className="text-secondary" />
+            <span>تصفية الكوادر</span>
           </div>
-        </div>
 
-        {/* شبكة المستقلين (Grid) */}
-        <div className="w-full lg:w-3/4">
+          {/* 1. التخصص الوظيفي */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <FiAward /> التخصص المهني
+            </label>
+            <input
+              type="text"
+              placeholder="مثال: Frontend"
+              className="w-full bg-slate-950 border border-white/[0.08] focus:border-secondary p-3 rounded-xl text-xs text-white focus:outline-none transition-colors text-right"
+              value={filters.title}
+              onChange={(e) =>
+                setFilters({ ...filters, title: e.target.value })
+              }
+            />
+          </div>
+
+          {/* 2. البحث بالمهارات */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <FiBookOpen /> المهارة المطلوبة
+            </label>
+            <input
+              type="text"
+              placeholder="مثال: React, Node.js"
+              className="w-full bg-slate-950 border border-white/[0.08] focus:border-secondary p-3 rounded-xl text-xs text-white focus:outline-none transition-colors text-right"
+              value={filters.skills}
+              onChange={(e) =>
+                setFilters({ ...filters, skills: e.target.value })
+              }
+            />
+          </div>
+
+          {/* 3. مستوى الخبرة */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <FiSliders /> مستوى الخبرة
+            </label>
+            <select
+              value={filters.experienceLevel}
+              onChange={(e) =>
+                setFilters({ ...filters, experienceLevel: e.target.value })
+              }
+              className="w-full bg-slate-950 border border-white/[0.08] focus:border-secondary p-3 rounded-xl text-xs text-white cursor-pointer focus:outline-none"
+            >
+              <option value="">كل المستويات</option>
+              <option value="beginner">مبتدئ (Beginner)</option>
+              <option value="intermediate">متوسط (Intermediate)</option>
+              <option value="expert">خبير (Expert)</option>
+            </select>
+          </div>
+
+          {/* 4. تكلفة الساعة التقديرية */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+              <FiDollarSign /> أقصى سعر للساعة ($)
+            </label>
+            <input
+              type="number"
+              placeholder="مثال: 50"
+              className="w-full bg-slate-950 border border-white/[0.08] focus:border-secondary p-3 rounded-xl text-xs text-slate-200 focus:outline-none transition-colors text-left"
+              dir="ltr"
+              value={filters.hourlyRate}
+              onChange={(e) =>
+                setFilters({ ...filters, hourlyRate: e.target.value })
+              }
+            />
+          </div>
+
+          {/* أزرار التحكم */}
+          <div className="flex flex-col gap-2 pt-2">
+            <Button
+              variant="accent"
+              className="w-full py-2.5 font-bold text-xs rounded-xl text-slate-950 shadow-md shadow-secondary/5"
+              onClick={handleApplyFilters}
+            >
+              تطبيق الفلترة الذكية
+            </Button>
+            <button
+              className="w-full bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] text-slate-400 hover:text-white transition-colors py-2.5 rounded-xl text-xs font-medium"
+              onClick={handleClearFilters}
+            >
+              إعادة تعيين 🔄
+            </button>
+          </div>
+        </aside>
+
+        {/* شبكة عرض المستقلين */}
+        <div className="lg:col-span-3">
           {isLoading ? (
-            <div className="flex justify-center items-center min-h-[40vh]">
+            <div className="flex flex-col justify-center items-center min-h-[40vh] gap-3">
               <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-secondary"></div>
+              <span className="text-xs text-slate-500">
+                جاري سحب بروفايلات النخبة التقنية...
+              </span>
             </div>
           ) : isError ? (
-            <div className="text-center py-20 text-red-500 bg-primary rounded-xl border border-slate-800">
-              حدث خطأ أثناء جلب البيانات.
+            <div className="text-center py-20 text-red-400 bg-[#0D121A] rounded-2xl border border-white/[0.05] text-sm">
+              ⚠️ عطل مؤقت في مزامنة الداتا مع خادم مسار الرئيسي.
             </div>
           ) : freelancers.length === 0 ? (
-            <div className="text-center py-20 bg-primary rounded-xl border border-slate-800 text-slate-400">
-              لا يوجد مستقلين يتطابقون مع بحثك حالياً.
+            <div className="text-center py-24 bg-gradient-to-b from-white/[0.01] to-transparent rounded-2xl border border-dashed border-white/10 text-slate-400 text-sm">
+              🔍 لم نجد أي مستقل يطابق معايير البحث الحالية حالياً.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {freelancers.map((freelancer) => (
-                <FreelancerCard key={freelancer._id} freelancer={freelancer} />
-              ))}
+              {freelancers.map(
+                (freelancer) =>
+                  !freelancer.freelancerProfile.isSpam && (
+                    <FreelancerCard
+                      key={freelancer._id}
+                      freelancer={freelancer}
+                    />
+                  ),
+              )}
             </div>
           )}
         </div>
