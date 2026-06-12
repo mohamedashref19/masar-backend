@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForgotPassword } from "../hooks/useForgotPassword";
-import { FiMail, FiArrowRight } from "react-icons/fi";
+import { FiMail, FiArrowLeft, FiLock } from "react-icons/fi"; // 🎯 استيراد FiArrowLeft للـ RTL الانسيابي
 import { Link } from "react-router-dom";
 
 export default function ForgotPassword() {
@@ -14,61 +14,86 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 font-['Outfit']">
-      {/* دوائر الإضاءة في الخلفية للحفاظ على جمالية الـ HCI */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-secondary/10 blur-[100px]" />
+    <div
+      dir="rtl"
+      className="min-h-screen flex items-center justify-center bg-[#080B10] px-4 py-12 relative overflow-hidden text-right selection:bg-secondary/30 font-['Outfit']"
+    >
+      {/* 🌌 تأثيرات الإضاءة المحيطية العميقة المتسقة بالملي مع بقية نظام مسار */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-40 right-1/4 h-[450px] w-[450px] rounded-full bg-secondary/5 blur-[130px] animate-pulse [animation-duration:7s]" />
       </div>
 
+      {/* الحاوية الحركية الرشيقة لـ كارد استعادة كلمة المرور */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md p-8 rounded-[2rem] border border-white/5 bg-white/[0.02] backdrop-blur-2xl shadow-2xl"
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md z-10"
       >
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-heading mb-2">
-            نسيت كلمة السر؟
-          </h1>
-          <p className="text-body">
-            لا تقلق، أدخل بريدك الإلكتروني وسنرسل لك كود التحقق.
-          </p>
-        </div>
+        {/* البنية الخارجية الزجاجية الفخمة (Floating Glass Container) */}
+        <div className="relative rounded-3xl border border-white/[0.05] bg-gradient-to-b from-white/[0.03] to-transparent backdrop-blur-2xl p-8 md:p-10 shadow-[0_30px_80px_rgba(0,0,0,0.6)] overflow-hidden">
+          {/* خط الإضاءة الـ Crisp الأنيق أعلى الكارت */}
+          <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="relative">
-            <label className="block text-sm font-medium text-slate-400 mb-2 mr-1">
-              البريد الإلكتروني
-            </label>
-            <div className="relative">
-              <FiMail className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@gmail.com"
-                className="w-full bg-slate-900/50 border border-slate-800 rounded-xl py-3 pr-12 pl-4 text-white focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all"
-              />
+          {/* هيدر التوجيه والاستعادة */}
+          <div className="text-center mb-8">
+            <div className="inline-flex w-12 h-12 bg-gradient-to-tr from-secondary to-[#BDD400] rounded-2xl items-center justify-center text-slate-950 font-black text-xl shadow-[0_4px_20px_rgba(228,255,0,0.15)] mb-4">
+              <FiLock size={20} />
             </div>
+            <h2 className="text-2xl font-black text-white tracking-tight">
+              نسيت كلمة السر؟
+            </h2>
+            <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-sm mx-auto">
+              لا تقلق، أدخل بريدك الإلكتروني المعتمد وسيقوم نظام مسار بإرسال كود
+              فك التشفير والتحقق فوراً.
+            </p>
           </div>
 
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full bg-secondary text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-          >
-            {isPending ? "جاري الإرسال..." : "إرسال الكود"}
-            {!isPending && <FiArrowRight />}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-6 text-sm">
+            {/* حقل البريد الإلكتروني المطور */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-bold text-slate-400 mb-0.5 mr-1">
+                البريد الإلكتروني للحساب
+              </label>
+              <div className="relative flex items-center">
+                {/* تم تعديل مكان الأيقونة لتكون على اليمين بما يخدم الـ RTL النظيف */}
+                <FiMail className="absolute right-4 text-slate-500" size={16} />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@gmail.com"
+                  className="w-full bg-slate-950 border border-white/[0.08] focus:border-secondary rounded-xl py-3.5 pr-12 pl-4 text-slate-200 focus:outline-none transition-colors text-right font-sans text-xs md:text-sm"
+                />
+              </div>
+            </div>
 
-        <div className="mt-8 text-center">
-          <Link
-            to="/login"
-            className="text-sm text-slate-500 hover:text-secondary transition-colors"
-          >
-            العودة لتسجيل الدخول
-          </Link>
+            {/* زر الإرسال المطور بتأثير الـ Hover الانسيابي العربي */}
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full bg-secondary text-slate-950 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-[0_10px_25px_rgba(228,255,0,0.1)] hover:shadow-[0_10px_25px_rgba(228,255,0,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 group"
+            >
+              <span>
+                {isPending ? "جاري ترحيل الطلب..." : "إرسال كود التحقق"}
+              </span>
+              {/* 🎯 قلب اتجاه السهم ليشير إلى اليسار (الخروج والانتقال في العربي) */}
+              {!isPending && (
+                <FiArrowLeft className="group-hover:-translate-x-0.5 transition-transform" />
+              )}
+            </button>
+          </form>
+
+          {/* تذييل الكارد للعودة */}
+          <div className="mt-8 text-center border-t border-white/[0.04] pt-4">
+            <Link
+              to="/login"
+              className="text-xs font-medium text-slate-500 hover:text-white transition-colors"
+            >
+              ← العودة لتسجيل الدخول
+            </Link>
+          </div>
         </div>
       </motion.div>
     </div>

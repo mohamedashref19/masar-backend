@@ -65,6 +65,7 @@ exports.getProjectMilestones = catchAsync(async (req, res, next) => {
         return next(new AppError('You are not authorized', 403));
 
     const milestones = await Milestone.find({ project: project._id });
+    console.log('MilestonesBackend:', milestones); // 🔍 لوج للتأكد من البيانات
 
     if (milestones.length == 0) {
         return res.status(200).json({

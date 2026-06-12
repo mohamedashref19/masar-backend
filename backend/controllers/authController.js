@@ -17,13 +17,24 @@ const signTokenAndSend = (user, res, statusCode) => {
         expiresIn: process.env.JWT_EXPIRES_IN,
     });
 
-    // 🔹 Cookie options
+    // 🔹 إعدادات الكوكي المحدثة والمؤمنة للـ Localhost والـ Deploy
     const cookieOptions = {
         expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
-        httpOnly: true, // to prevent the front end from accessing or modifying the cookie
-        secure: process.env.NODE_ENV === 'production', // https only in prod
-        sameSite: 'Lax',
+        httpOnly: true, // حماية ضد الـ XSS
+
+        // 🎯 التعديل السحري الأول:
+        // في الـ Production لازم secure (https)، وفي اللوكال خلوها false عشان الـ http العادي يقبلها
+        secure: process.env.NODE_ENV === 'production',
+
+        // 🎯 التعديل السحري الثاني ومربط الفرس:
+        // في الـ Production خلوها 'None' عشان الـ Netlify يلقطها، وفي اللوكال سيبوها 'Lax' أو خلوها 'None' ديناميكياً
+        sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     };
+
+    // 🚨 تركة ذهبية لـ ليلة التسليم:
+    // لو أصحابك لسه الكوكي بتتحجب عندهم بسبب اختلاف البورتات على اللوكال هوست،
+    // اقلبوا الـ sameSite لـ 'None' والـ secure لـ true حتى في اللوكال، بشرط تفتحوا المتصفح مأمن.
+    // لكن الإعداد المكتوب فوق ده هو الـ Best Practice الافتراضي.
 
     // 🔹 send cookie
     res.cookie('jwt', token, cookieOptions);
@@ -202,7 +213,7 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
 
 exports.login = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
         return next(new AppError('Please provide email and password', 400));
     }
@@ -256,7 +267,7 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'تم إرسال كود تحقق جديد إلى بريدك الإلكتروني',
-            data: null
+            data: null,
         });
     } catch (err) {
         user.otp = undefined;
@@ -277,7 +288,7 @@ exports.logout = (req, res) => {
     res.status(200).json({
         status: 'success',
         message: 'Logged out successfully',
-        data: null
+        data: null,
     });
 };
 
@@ -299,7 +310,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         return res.status(200).json({
             status: 'success',
             message: 'Please check your email for reset password token',
-            data: null
+            data: null,
         });
     } catch (err) {
         user.resetPasswordToken = undefined;
