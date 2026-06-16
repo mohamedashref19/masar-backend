@@ -9,7 +9,6 @@ const apiFeatures = require('../utils/apiFeatures');
 const aiClient = require('../utils/aiClient');
 const createNotification = require('../utils/createNotification');
 
-
 const normalizeSkills = (skills) => {
     if (!skills) return [];
 
@@ -28,9 +27,7 @@ const normalizeSkills = (skills) => {
         return [];
     }
 
-    return normalizedSkills
-        .map((skill) => String(skill).trim())
-        .filter(Boolean);
+    return normalizedSkills.map((skill) => String(skill).trim()).filter(Boolean);
 };
 
 // exports.createProject = catchAsync(async (req, res, next) => {
@@ -84,7 +81,6 @@ const normalizeSkills = (skills) => {
 //     });
 // });
 
-
 exports.createProject = catchAsync(async (req, res, next) => {
     let filteredObj = filterObject(
         req.body,
@@ -128,9 +124,7 @@ exports.createProject = catchAsync(async (req, res, next) => {
             budget_range: project.budget ? String(project.budget) : '',
             complexity: project.complexity || 'Medium',
             experience_required:
-                project.experience_required ||
-                req.body.experience_required ||
-                'Intermediate',
+                project.experience_required || req.body.experience_required || 'Intermediate',
         };
 
         console.log('AI match payload:', matchPayload);
@@ -147,13 +141,11 @@ exports.createProject = catchAsync(async (req, res, next) => {
             [];
     } catch (aiError) {
         aiMatchingError =
-            aiError.response?.data?.detail ||
-            aiError.response?.data?.message ||
-            aiError.message;
+            aiError.response?.data?.detail || aiError.response?.data?.message || aiError.message;
 
         console.error('AI Matching Error:', aiMatchingError);
     }
-    
+
     if (suggestedFreelancers.length > 0) {
         await Promise.all(
             suggestedFreelancers.map((freelancer) =>
@@ -207,7 +199,6 @@ exports.getProject = catchAsync(async (req, res, next) => {
         data: { project },
     });
 });
-
 
 // for the user to get all their projects
 exports.getMyProjects = catchAsync(async (req, res, next) => {

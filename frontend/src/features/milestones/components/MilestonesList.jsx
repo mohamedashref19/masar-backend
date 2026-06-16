@@ -10,7 +10,6 @@ export default function MilestonesList({
   isOwner,
   actions,
 }) {
-  console.log("Milestones Data:", milestones); // 🔍 لوج للتأكد من البيانات
   // 🎯 الاستخراج المباشر للنظافة والسرعة
   const { submitWorkMutate, isSubmittingWork } = actions;
 
@@ -34,7 +33,6 @@ export default function MilestonesList({
   return (
     <div className="space-y-4">
       {milestones.map((milestone) => {
-        console.log("Milestone Status:", milestone.status); // 🔍 لوج للتأكد من الحالة
         const currentStatus =
           milestone.status?.toLowerCase() || "pending_funding";
 

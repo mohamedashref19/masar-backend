@@ -116,7 +116,6 @@ exports.stripeWebhook = async (req, res) => {
                 milestone.status = 'funded';
                 milestone.fundedAt = Date.now();
                 await milestone.save();
-                console.log("milestone has been funded!!!!!!!!!!")
 
                 await createNotification({
                     recipient: milestone.freelancer,
@@ -224,7 +223,6 @@ exports.releaseMilestonePayment = catchAsync(async (req, res, next) => {
         relatedMilestone: milestone._id,
     });
 
-    
     try {
         const url = `${req.protocol}://${req.get('host')}/wallet`;
 

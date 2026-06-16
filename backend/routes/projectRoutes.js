@@ -16,7 +16,6 @@ router
     )
     .get(projectController.getAllProjects);
 
-    
 router.get(
     '/my-projects',
     authController.protect,
@@ -40,7 +39,6 @@ router.patch(
 
 router.use('/:projectId/proposals', proposalRouter);
 router.use('/:projectId/milestones', milestoneRouter);
-
 
 router
     .route('/:projectId')

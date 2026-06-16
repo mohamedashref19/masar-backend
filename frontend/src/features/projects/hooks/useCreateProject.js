@@ -10,11 +10,9 @@ export const useCreateProject = () => {
   return useMutation({
     mutationFn: createProject,
     onSuccess: (data) => {
-      console.log("Project created successfully:", data);
       toast.success("تم نشر المشروع بنجاح! 🚀");
       // بنعمل Invalidate عشان لو هو فاتح صفحة المشاريع تتحدث أوتوماتيك
       queryClient.invalidateQueries({ queryKey: ["projects"] });
-      console.log(data);
       // نرجعه للوحة التحكم بتاعته
       navigate("/client-dashboard");
     },

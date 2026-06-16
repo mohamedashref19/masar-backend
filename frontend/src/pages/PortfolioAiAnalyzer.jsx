@@ -45,8 +45,6 @@ export default function PortfolioAiAnalyzer() {
     if (passedData.passedFile && (!payload.file || payload.file.length === 0)) {
       // لو شغال بلوجيك تحويل الملف...
     }
-
-    console.log("✈️ الـ Payload النهائي الموجه لسيرفر الـ AI:", payload);
     analyze(payload); // نداء الميوتيشن بالبيانات المنظفة
   };
 

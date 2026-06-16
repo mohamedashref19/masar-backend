@@ -42,7 +42,6 @@ export const useFreelancerSettingsLogic = () => {
   useEffect(() => {
     const realUser =
       userData?.data?.user || userData?.user || userData?.data || userData;
-    console.log("Real User Data:", realUser);
 
     if (realUser && realUser.name) {
       reset({
@@ -110,8 +109,6 @@ export const useFreelancerSettingsLogic = () => {
   };
 
   const onSubmit = (data) => {
-    console.log("البيانات الحية الموجهة للباك إند:", data);
-
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("freelancerProfile[title]", data.title || "");

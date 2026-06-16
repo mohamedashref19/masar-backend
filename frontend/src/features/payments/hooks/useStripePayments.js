@@ -12,9 +12,6 @@ export const useStripePayments = (projectId) => {
   const fundMutation = useMutation({
     mutationFn: fundMilestone,
     onSuccess: (res) => {
-      // 1. طباعة الرد في الكونسول عشان لو حبيت تبص عليه
-      console.log("الرد الخام من السيرفر:", res);
-
       // 🎯 2. البحث التلقائي الذكي (Auto-Detect Link)
       // الدالة دي بتلف جوه الأوبجكت وتجيب أول قيمة نصية تبدأ برابط ويب
       const findUrlDynamically = (obj) => {

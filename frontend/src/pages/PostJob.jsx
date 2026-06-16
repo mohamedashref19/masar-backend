@@ -40,8 +40,6 @@ export default function PostJob() {
   }, [aiPrefilledData, reset]);
 
   const onSubmit = (formData) => {
-    console.log("البيانات المستلمة من الفورم قبل التنظيف والـ POST:", formData);
-
     // الحقول الأخرى كما هي...
     const skillsArray =
       typeof formData.skillsRequired === "string"

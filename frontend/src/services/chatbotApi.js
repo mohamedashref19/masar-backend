@@ -3,8 +3,6 @@ const MODEL_NAME = "gemini-2.5-flash";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
 
 export const analyzeProjectRequirements = async (chatHistory) => {
-  console.log("🚀 إرسال المحادثة الحية لتحليل الـ Context...");
-
   if (!GEMINI_API_KEY) {
     throw new Error("API Key مفقود في ملف الـ .env!");
   }
@@ -73,7 +71,6 @@ export const analyzeProjectRequirements = async (chatHistory) => {
   }
 
   const cleanedText = rawText.trim();
-  console.log("📥 الرد القادم من جيميناي:", cleanedText);
 
   if (cleanedText.startsWith("{") && cleanedText.endsWith("}")) {
     try {

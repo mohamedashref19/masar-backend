@@ -196,13 +196,12 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
         message: 'مرحبا بك في منصة مسار، نتمنى لك التوفيق والنجاح',
     });
 
-
     signTokenAndSend(user, res, 200);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
         return next(new AppError('Please provide email and password', 400));
     }
@@ -256,7 +255,7 @@ exports.resendOTP = catchAsync(async (req, res, next) => {
         res.status(200).json({
             status: 'success',
             message: 'تم إرسال كود تحقق جديد إلى بريدك الإلكتروني',
-            data: null
+            data: null,
         });
     } catch (err) {
         user.otp = undefined;
@@ -277,7 +276,7 @@ exports.logout = (req, res) => {
     res.status(200).json({
         status: 'success',
         message: 'Logged out successfully',
-        data: null
+        data: null,
     });
 };
 
@@ -299,7 +298,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
         return res.status(200).json({
             status: 'success',
             message: 'Please check your email for reset password token',
-            data: null
+            data: null,
         });
     } catch (err) {
         user.resetPasswordToken = undefined;

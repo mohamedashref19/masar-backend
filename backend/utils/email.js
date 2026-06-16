@@ -42,7 +42,6 @@ module.exports = class Email {
 
         try {
             await this.getTransport().sendMail(emailOptions);
-            console.log(`✅ Email sent to: ${this.to}`);
         } catch (err) {
             console.error(`❌ Email failed: ${err.message}`);
             throw err;
