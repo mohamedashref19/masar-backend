@@ -8,11 +8,11 @@ The platform combines traditional freelancing workflows with AI-powered services
 
 **Live Platform**
 
-Masar Platform
+[Masar Platform](https://masarfreelance.netlify.app/)
 
 **API Documentation**
 
-Masar API Documentation
+[Masar API Documentation](https://documenter.getpostman.com/view/48914644/2sBXwtpozC)
 
 ---
 
