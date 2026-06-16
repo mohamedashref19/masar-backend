@@ -7,7 +7,6 @@ export const updateMe = async (formData) => {
       "Content-Type": "multipart/form-data",
     },
   });
-  console.log("Response from updateMe:", response.data); // Debug log
   return response.data;
 };
 

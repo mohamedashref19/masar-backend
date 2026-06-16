@@ -1,11 +1,8 @@
 module.exports = (io) => {
     io.on('connection', (socket) => {
-        console.log(`✅ User connected: ${socket.id}`);
-
         //1. Join Room
         socket.on('joinRoom', (conversationId) => {
             socket.join(conversationId);
-            console.log(`🚪 User joined room: ${conversationId}`);
         });
 
         // ─── 2. Send Message (Broadcasting Only)
@@ -34,7 +31,6 @@ module.exports = (io) => {
         // ─── 5. Leave Room
         socket.on('leaveRoom', (conversationId) => {
             socket.leave(conversationId);
-            console.log(`🚶 User left room: ${conversationId}`);
         });
 
         // ─── 6. Disconnect

@@ -14,9 +14,6 @@ export const useVerifyOTP = () => {
     mutationFn: verifyOTP,
 
     onSuccess: (responseData) => {
-      // طباعة الرد الفعلي الصادر من الباك إند لكشف الهيكل الداخلي في الكونسول فوراً
-      console.log("📥 استجابة تفعيل الـ OTP بنجاح:", responseData);
-
       // 1. إظهار رسالة النجاح
       toast.success("تم تفعيل حسابك بنجاح! 🎉");
 

@@ -11,10 +11,10 @@ const upload = multer({ storage: multer.memoryStorage() });
 router.use(authController.protect);
 
 router.post(
-  '/analyze-portfolio',
-  authController.restrictTo('freelancer'),
-  upload.single('file'),
-  aiController.analyzePortfolio
+    '/analyze-portfolio',
+    authController.restrictTo('freelancer'),
+    upload.single('file'),
+    aiController.analyzePortfolio,
 );
 
 module.exports = router;

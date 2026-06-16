@@ -207,7 +207,6 @@ exports.verifyOTP = catchAsync(async (req, res, next) => {
         message: 'مرحبا بك في منصة مسار، نتمنى لك التوفيق والنجاح',
     });
 
-
     signTokenAndSend(user, res, 200);
 });
 

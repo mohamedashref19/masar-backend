@@ -8,8 +8,6 @@ const User = require('./../models/userModel');
 // Models
 const Project = require('./../models/projectModel');
 
-
-
 exports.createProposal = catchAsync(async (req, res, next) => {
     const projectId = req.params.projectId;
     const freelancerId = req.user.id;
@@ -36,8 +34,13 @@ exports.createProposal = catchAsync(async (req, res, next) => {
         return next(new AppError('You have already applied to this project', 400));
     }
 
-    if (freelancer.freelancerProfile.isSpam === true){
-        return next(new AppError(`You can't send proposals until you provide more data about yourself like cv, portfolio, ...` , 403)) // forbidden
+    if (freelancer.freelancerProfile.isSpam === true) {
+        return next(
+            new AppError(
+                `You can't send proposals until you provide more data about yourself like cv, portfolio, ...`,
+                403,
+            ),
+        ); // forbidden
     }
 
     const newProposal = await Proposal.create({

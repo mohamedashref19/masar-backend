@@ -55,8 +55,6 @@ exports.getProjectMilestones = catchAsync(async (req, res, next) => {
 
     if (!project) return next(new AppError('No project found with that id', 404));
 
-    // console.log(req.user.role);
-
     if (
         project.client._id.toString() !== req.user._id.toString() &&
         (!project.assignedFreelancer ||

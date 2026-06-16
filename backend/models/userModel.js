@@ -21,7 +21,7 @@ const freelancerProfileSchema = new mongoose.Schema(
         portfolioLinks: [String],
 
         githubLink: String,
-        
+
         cv: String,
 
         hourlyRate: Number,
@@ -33,8 +33,8 @@ const freelancerProfileSchema = new mongoose.Schema(
 
         isSpam: {
             type: Boolean,
-            default: true
-        }
+            default: true,
+        },
     },
 
     { _id: false },

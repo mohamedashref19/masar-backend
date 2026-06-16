@@ -6,7 +6,6 @@ const fs = require('fs');
 const FormData = require('form-data');
 const aiClient = require('./../utils/aiClient');
 
-
 // Utils
 const filterObject = require('./../utils/filterObj');
 const catchAsync = require('./../utils/catchAsync');
@@ -86,88 +85,81 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     }
 
     const user = await User.findOneAndUpdate({ _id: req.user._id }, filteredObj, {
-    runValidators: true,
-    returnDocument: 'after',
-});
+        runValidators: true,
+        returnDocument: 'after',
+    });
 
-let aiAnalysis = null;
-let aiAnalysisError = null;
+    let aiAnalysis = null;
+    let aiAnalysisError = null;
 
-if (user.role === 'freelancer') {
-    const hasCV = !!req.file;
-    const hasGithub = !!user.freelancerProfile?.githubLink;
-    const hasPortfolioLinks =
-        Array.isArray(user.freelancerProfile?.portfolioLinks) &&
-        user.freelancerProfile.portfolioLinks.length > 0;
-    const hasBio = !!user.freelancerProfile?.bio;
+    if (user.role === 'freelancer') {
+        const hasCV = !!req.file;
+        const hasGithub = !!user.freelancerProfile?.githubLink;
+        const hasPortfolioLinks =
+            Array.isArray(user.freelancerProfile?.portfolioLinks) &&
+            user.freelancerProfile.portfolioLinks.length > 0;
+        const hasBio = !!user.freelancerProfile?.bio;
 
-    if (hasCV || hasGithub || hasPortfolioLinks || hasBio) {
-        try {
-            const form = new FormData();
+        if (hasCV || hasGithub || hasPortfolioLinks || hasBio) {
+            try {
+                const form = new FormData();
 
-            form.append('freelancer_id', user._id.toString());
+                form.append('freelancer_id', user._id.toString());
 
-            const portfolioText = [
-                user.freelancerProfile?.title,
-                user.freelancerProfile?.bio,
-                Array.isArray(user.freelancerProfile?.skills)
-                    ? user.freelancerProfile.skills.join(', ')
-                    : '',
-            ]
-                .filter(Boolean)
-                .join('\n');
+                const portfolioText = [
+                    user.freelancerProfile?.title,
+                    user.freelancerProfile?.bio,
+                    Array.isArray(user.freelancerProfile?.skills)
+                        ? user.freelancerProfile.skills.join(', ')
+                        : '',
+                ]
+                    .filter(Boolean)
+                    .join('\n');
 
-            if (portfolioText) {
-                form.append('portfolio_text', portfolioText);
-            }
+                if (portfolioText) {
+                    form.append('portfolio_text', portfolioText);
+                }
 
-            if (user.freelancerProfile?.githubLink) {
-                form.append('github_url', user.freelancerProfile.githubLink);
-            }
+                if (user.freelancerProfile?.githubLink) {
+                    form.append('github_url', user.freelancerProfile.githubLink);
+                }
 
-            if (
-                Array.isArray(user.freelancerProfile?.portfolioLinks) &&
-                user.freelancerProfile.portfolioLinks.length > 0
-            ) {
-                form.append(
-                    'portfolio_url',
-                    user.freelancerProfile.portfolioLinks[0],
-                );
-            }
+                if (
+                    Array.isArray(user.freelancerProfile?.portfolioLinks) &&
+                    user.freelancerProfile.portfolioLinks.length > 0
+                ) {
+                    form.append('portfolio_url', user.freelancerProfile.portfolioLinks[0]);
+                }
 
-            if (req.file) {
-                form.append('file', fs.createReadStream(req.file.path), {
-                    filename: req.file.filename,
-                    contentType: req.file.mimetype,
+                if (req.file) {
+                    form.append('file', fs.createReadStream(req.file.path), {
+                        filename: req.file.filename,
+                        contentType: req.file.mimetype,
+                    });
+                }
+
+                const aiResponse = await aiClient.post('/analyze-portfolio', form, {
+                    headers: form.getHeaders(),
                 });
+
+                aiAnalysis = aiResponse.data;
+
+                // The account is spam or not
+                user.freelancerProfile.isSpam = aiAnalysis?.spam_check?.is_suspicious ?? false;
+                await user.save({ validateBeforeSave: false });
+
+                await createNotification({
+                    recipient: user._id,
+                    type: 'system',
+                    title: 'اكتمل تحليل الملف الشخصي',
+                    message: 'تم تحليل ملفك الشخصي ومعرض أعمالك بنجاح.',
+                });
+            } catch (err) {
+                aiAnalysisError =
+                    err.response?.data?.detail || err.response?.data?.message || err.message;
             }
-
-            const aiResponse = await aiClient.post('/analyze-portfolio', form, {
-                headers: form.getHeaders(),
-            });
-
-            aiAnalysis = aiResponse.data;
-
-            await createNotification({
-                recipient: user._id,
-                type: 'system',
-                title: 'اكتمل تحليل الملف الشخصي',
-                message: 'تم تحليل ملفك الشخصي ومعرض أعمالك بنجاح.',
-            });
-
-        } catch (err) {
-            aiAnalysisError =
-                err.response?.data?.detail ||
-                err.response?.data?.message ||
-                err.message;
         }
     }
-}
-
-    // The account is spam or not
-
-    user.freelancerProfile.isSpam = aiAnalysis?.spam_check?.is_suspicious ?? false;
-    await user.save({ validateBeforeSave: false });
 
     return res.status(200).json({
         status: 'success',

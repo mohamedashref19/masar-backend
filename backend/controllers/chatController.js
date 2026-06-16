@@ -4,7 +4,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const createNotification = require('../utils/createNotification');
 
-
 //Bring all the conversations of the user who is logged in
 exports.getMyConversations = catchAsync(async (req, res, next) => {
     const userId = req.user._id;
@@ -99,14 +98,17 @@ exports.sendMessage = catchAsync(async (req, res, next) => {
     conversation.lastMessageAt = Date.now();
     await conversation.save();
 
-    const receiverId = conversation.client.toString() === userId.toString() ? conversation.freelancer : conversation.client;
+    const receiverId =
+        conversation.client.toString() === userId.toString()
+            ? conversation.freelancer
+            : conversation.client;
 
     await createNotification({
         recipient: receiverId,
         sender: userId,
         type: 'message_received',
         title: 'رسالة جديدة',
-        message: 'لقد تلقيت رسالة جديدة.',  
+        message: 'لقد تلقيت رسالة جديدة.',
     });
 
     res.status(201).json({

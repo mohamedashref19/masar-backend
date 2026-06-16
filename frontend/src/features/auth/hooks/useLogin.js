@@ -16,8 +16,6 @@ export const useLogin = () => {
     mutationFn: loginUser,
 
     onSuccess: (data) => {
-      console.log("البيانات اللي راجعة من السيرفر:", data);
-
       // 🎯 استخراج ذكي لليوزر والتوكن
       const user = data?.data?.user || data?.user;
       const token = data?.data?.token || data?.token; // 👈 التعديل هنا

@@ -36,7 +36,6 @@ const proposalSchema = new mongoose.Schema(
             enum: ['pending', 'accepted', 'rejected'],
             default: 'pending',
         },
-
     },
     { timestamps: true },
 );
@@ -51,8 +50,5 @@ proposalSchema.pre(/^find/, function () {
         select: 'name profileImage freelancerProfile',
     });
 });
-
-
-
 
 module.exports = mongoose.model('Proposal', proposalSchema);
