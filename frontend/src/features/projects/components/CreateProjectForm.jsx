@@ -14,6 +14,8 @@ import {
   FiBriefcase,
 } from "react-icons/fi";
 
+// داخل ملف CreateProjectForm.jsx في البداية:
+
 export default function CreateProjectForm({
   onSubmit,
   isLoading,
@@ -22,10 +24,12 @@ export default function CreateProjectForm({
   const {
     register,
     handleSubmit,
+    reset, // 🎯 استخرجنا دالة الـ reset
     formState: { errors },
   } = useForm({
     resolver: zodResolver(createProjectSchema),
-    values: prefilledData || {
+    // الافتراضي الافتراضي
+    defaultValues: {
       title: "",
       description: "",
       category: "",
@@ -37,6 +41,12 @@ export default function CreateProjectForm({
     },
   });
 
+  // 🚀 تريكة الأمان: لو مبعوت داتا مستخرجة من الـ AI، احقنها في الفورم فوراً غصب عن المكون
+  useEffect(() => {
+    if (prefilledData) {
+      reset(prefilledData);
+    }
+  }, [prefilledData, reset]);
   return (
     <div
       dir="rtl"

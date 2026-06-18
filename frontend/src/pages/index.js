@@ -20,6 +20,7 @@ export { default as SmartChatPage } from "./SmartChatPage";
 export { default as Login } from "./Login";
 export { default as VerifyOTP } from "./VerifyOtp";
 export { default as Register } from "./Register";
+export { default as ResetPassword } from "./ResetPassword";
 /** Client */
 export { default as ClientSettings } from "./ClientSettings";
 export { default as EditProject } from "./EditProject";

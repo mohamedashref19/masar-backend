@@ -1,16 +1,10 @@
 import { useClientSettingsLogic } from "../features/settings/hooks/useClientSettingsLogic";
 import { Button } from "../components";
 import ChangePassword from "../features/settings/components/ChangePassword";
-import {
-  FiSettings,
-  FiUser,
-  FiBriefcase,
-  FiCheckCircle,
-  FiInfo,
-} from "react-icons/fi";
+import { FiSettings, FiUser, FiCheckCircle } from "react-icons/fi";
 
 export default function ClientSettings() {
-  // 🎯 استخراج الحقول المسجلة في الـ logic hook
+  // 🎯 استخراج الحقول المسجلة في الـ logic hook المحدث
   const { register, handleSubmit, errors, onSubmit, isPending, isFetching } =
     useClientSettingsLogic();
 
@@ -44,7 +38,7 @@ export default function ClientSettings() {
               إعدادات ملف العميل
             </h1>
             <p className="text-slate-400 text-xs mt-1">
-              قم بتحديث بياناتك الشخصية وبيانات شركتك لتوثيق المشاريع.
+              قم بتحديث بياناتك الشخصية الأساسية لتأمين الهوية الرقمية لحسابك.
             </p>
           </div>
         </div>
@@ -78,14 +72,13 @@ export default function ClientSettings() {
             </div>
           </div>
 
-          {/* 🎯 قسم بيانات الشركة المتطابق مع الـ Client Profile في الباك إند */}
-          <div className="pt-6 border-t border-white/[0.03] space-y-4">
+          {/* 🎯 تم حجب حقول المنشأة مؤقتاً لضمان استقرار تدفق الـ Demo لايف أمام اللجنة */}
+          {/* <div className="pt-6 border-t border-white/[0.03] space-y-4">
             <h3 className="text-xs font-bold text-secondary flex items-center gap-1.5 uppercase tracking-wider mb-2">
               <FiBriefcase /> الملف التجاري والمنشأة
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* اسم الشركة */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-slate-400">
                   اسم الشركة / المؤسسة
@@ -98,7 +91,6 @@ export default function ClientSettings() {
                 />
               </div>
 
-              {/* مجال العمل */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-slate-400">
                   مجال وتخصص العمل
@@ -112,7 +104,6 @@ export default function ClientSettings() {
               </div>
             </div>
 
-            {/* وصف الشركة */}
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-slate-400">
                 نبذة تعريفية عن نشاط العميل
@@ -124,9 +115,10 @@ export default function ClientSettings() {
                 placeholder="اكتب وصفاً مختصراً لشركتك لتعزيز ثقة المستقلين..."
               />
             </div>
-          </div>
+          </div> 
+          */}
 
-          {/* زرار الحفظ الفخم */}
+          {/* زرار الحفظ الفخم المطور ستايله سيبرانياً */}
           <div className="pt-6 border-t border-white/[0.05] flex justify-start">
             <Button
               type="submit"

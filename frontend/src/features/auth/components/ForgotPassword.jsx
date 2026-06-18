@@ -1,16 +1,52 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForgotPassword } from "../hooks/useForgotPassword";
-import { FiMail, FiArrowLeft, FiLock } from "react-icons/fi"; // 🎯 استيراد FiArrowLeft للـ RTL الانسيابي
+import { FiMail, FiArrowLeft, FiLock } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2"; // 🎯 استيراد الـ Swal لتقديم إشعار سيبراني فخم للجنة بكرة
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const { mutate: sendOTP, isPending } = useForgotPassword();
+
+  // 🎯 حقن الـ Handlers مباشرة داخل الـ Hook لإصدار التنبيه فوراً بدلاً من الـ Navigation
+  const { mutate: sendOTP, isPending } = useForgotPassword({
+    onSuccess: () => {
+      Swal.fire({
+        title: "تفقد بريدك الإلكتروني! 📧",
+        text: `تم إرسال رابط تأمين وإعادة تعيين كلمة المرور بنجاح إلى: ${email}، الرابط صالح لمدة 10 دقائق.`,
+        icon: "success",
+        background: "#0D121A",
+        color: "#fff",
+        confirmButtonColor: "#E4FF00", // لون براند مسار المضيء
+        confirmButtonText:
+          "<span style='color: #080B10; font-weight: bold;'>حسناً ⚙️</span>",
+        customClass: {
+          popup: "border border-white/[0.05] rounded-2xl font-sans",
+        },
+      });
+      setEmail(""); // تفريغ الحقل لشياكة الـ UI بعد النجاح
+    },
+    onError: (err) => {
+      Swal.fire({
+        title: "فشل الإجراء ⚠️",
+        text:
+          err.response?.data?.message ||
+          "لم نجد حساباً مسجلاً بهذا البريد الإلكتروني.",
+        icon: "error",
+        background: "#0D121A",
+        color: "#fff",
+        confirmButtonColor: "#f87171",
+        confirmButtonText: "محاولة أخرى",
+      });
+    },
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (email) sendOTP(email);
+    if (email) {
+      // تمرير طلب فك التشفير
+      sendOTP(email);
+    }
   };
 
   return (
@@ -18,21 +54,21 @@ export default function ForgotPassword() {
       dir="rtl"
       className="min-h-screen flex items-center justify-center bg-[#080B10] px-4 py-12 relative overflow-hidden text-right selection:bg-secondary/30 font-['Outfit']"
     >
-      {/* 🌌 تأثيرات الإضاءة المحيطية العميقة المتسقة بالملي مع بقية نظام مسار */}
+      {/* 🌌 تأثيرات الإضاءة المحيطية العميقة */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-40 right-1/4 h-[450px] w-[450px] rounded-full bg-secondary/5 blur-[130px] animate-pulse [animation-duration:7s]" />
       </div>
 
-      {/* الحاوية الحركية الرشيقة لـ كارد استعادة كلمة المرور */}
+      {/* الحاوية الحركية لـ كارد استعادة كلمة المرور */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="w-full max-w-md z-10"
       >
-        {/* البنية الخارجية الزجاجية الفخمة (Floating Glass Container) */}
+        {/* البنية الخارجية الزجاجية الفخمة */}
         <div className="relative rounded-3xl border border-white/[0.05] bg-gradient-to-b from-white/[0.03] to-transparent backdrop-blur-2xl p-8 md:p-10 shadow-[0_30px_80px_rgba(0,0,0,0.6)] overflow-hidden">
-          {/* خط الإضاءة الـ Crisp الأنيق أعلى الكارت */}
+          {/* خط الإضاءة أعلى الكارت */}
           <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
           {/* هيدر التوجيه والاستعادة */}
@@ -44,8 +80,8 @@ export default function ForgotPassword() {
               نسيت كلمة السر؟
             </h2>
             <p className="text-xs text-slate-400 mt-2 leading-relaxed max-w-sm mx-auto">
-              لا تقلق، أدخل بريدك الإلكتروني المعتمد وسيقوم نظام مسار بإرسال كود
-              فك التشفير والتحقق فوراً.
+              لا تقلق، أدخل بريدك الإلكتروني المعتمد وسيقوم نظام مسار بإرسال
+              رابط آمن وممكّن بالـ AI لإعادة تعيين الهوية الرقمية لحسابك فوراً.
             </p>
           </div>
 
@@ -56,7 +92,6 @@ export default function ForgotPassword() {
                 البريد الإلكتروني للحساب
               </label>
               <div className="relative flex items-center">
-                {/* تم تعديل مكان الأيقونة لتكون على اليمين بما يخدم الـ RTL النظيف */}
                 <FiMail className="absolute right-4 text-slate-500" size={16} />
                 <input
                   type="email"
@@ -69,16 +104,17 @@ export default function ForgotPassword() {
               </div>
             </div>
 
-            {/* زر الإرسال المطور بتأثير الـ Hover الانسيابي العربي */}
+            {/* زر الإرسال المطور */}
             <button
               type="submit"
               disabled={isPending}
               className="w-full bg-secondary text-slate-950 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-[0_10px_25px_rgba(228,255,0,0.1)] hover:shadow-[0_10px_25px_rgba(228,255,0,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-40 group"
             >
               <span>
-                {isPending ? "جاري ترحيل الطلب..." : "إرسال كود التحقق"}
+                {isPending
+                  ? "جاري تشفير وترحيل الطلب..."
+                  : "إرسال رابط استعادة المرور"}
               </span>
-              {/* 🎯 قلب اتجاه السهم ليشير إلى اليسار (الخروج والانتقال في العربي) */}
               {!isPending && (
                 <FiArrowLeft className="group-hover:-translate-x-0.5 transition-transform" />
               )}

@@ -8,6 +8,7 @@ import {
   FreelancerDashboard,
   NotFound,
   VerifyOTP,
+  ResetPassword,
   PostJob,
   ProjectDetails,
   FreelancersList,
@@ -37,6 +38,7 @@ const AppRouter = () => (
       <Route path="/register" element={<Register />} />
       <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
     </Route>
 
     {/* المسارات المحمية */}

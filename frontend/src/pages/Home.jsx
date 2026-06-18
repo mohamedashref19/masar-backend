@@ -9,26 +9,44 @@ import { useQuery } from "@tanstack/react-query";
 import SmartChatWidget from "../features/chatbot/components/SmartChatWidget";
 
 const stats = [
-  { label: "مشاريع نشطة وملبية", value: "+2.4K", gradient: "from-[#22C55E] to-[#10B981]", desc: "تم إطلاقها ومراقبتها كلياً بالـ AI" }, 
-  { label: "مستقلون موثّقون فنيًا", value: "+8.7K", gradient: "from-[#00F5D4] to-[#00BBF9]", desc: "تجاوزوا فحص الـ CV ومكافحة السبام" },
-  { label: "إجمالي الضمانات المالية", value: "$12.3M", gradient: "from-[#E4FF00] to-[#70E000]", desc: "مؤمنة عبر نظام الحساب الوسيط Escrow" },
+  {
+    label: "مشاريع نشطة وملبية",
+    value: "+2.4K",
+    gradient: "from-[#22C55E] to-[#10B981]",
+    desc: "تم إطلاقها ومراقبتها كلياً بالـ AI",
+  },
+  {
+    label: "مستقلون موثّقون فنيًا",
+    value: "+8.7K",
+    gradient: "from-[#00F5D4] to-[#00BBF9]",
+    desc: "تجاوزوا فحص الـ CV ومكافحة السبام",
+  },
+  {
+    label: "إجمالي الضمانات المالية",
+    value: "$12.3M",
+    gradient: "from-[#E4FF00] to-[#70E000]",
+    desc: "مؤمنة عبر نظام الحساب الوسيط Escrow",
+  },
 ];
 
 const trustSignals = [
   {
     title: "مدفوعات آمنة وضمان وسيط",
-    description: "نظام تعاقد مالي ذكي يحفظ حقوق الطرفين عبر الـ Split payments بكل شفافية.",
-    icon: "💳"
+    description:
+      "نظام تعاقد مالي ذكي يحفظ حقوق الطرفين عبر الـ Split payments بكل شفافية.",
+    icon: "💳",
   },
   {
     title: "مستشار فني على مدار الساعة",
-    description: "دعم فني مدعوم بالذكاء الاصطناعي لحل النزاعات ومتابعة تسليم الـ Milestones.",
-    icon: "⚡"
+    description:
+      "دعم فني مدعوم بالذكاء الاصطناعي لحل النزاعات ومتابعة تسليم الـ Milestones.",
+    icon: "⚡",
   },
   {
     title: "توثيق وفحص احترافي للملفات",
-    description: "كل مستقل يمر عبر فلتر الـ AI لتوثيق المهارات الحقيقية واستبعاد الحسابات الوهمية.",
-    icon: "🛡️"
+    description:
+      "كل مستقل يمر عبر فلتر الـ AI لتوثيق المهارات الحقيقية واستبعاد الحسابات الوهمية.",
+    icon: "🛡️",
   },
 ];
 
@@ -56,7 +74,11 @@ const Home = () => {
   const isClient = role === "client";
   const isFreelancer = role === "freelancer";
 
-  const { data: projectsData, isLoading: isProjectsLoading, isError: isProjectsError } = useQuery({
+  const {
+    data: projectsData,
+    isLoading: isProjectsLoading,
+    isError: isProjectsError,
+  } = useQuery({
     queryKey: ["projects", "latest-home"],
     queryFn: () => getAllProjects(""),
     staleTime: 60 * 1000,
@@ -66,14 +88,19 @@ const Home = () => {
   const allProjects = projectsData?.data?.projects || projectsData?.data || [];
   const latestProjects = allProjects.slice(0, 4);
 
-  const { data: freelancersData, isLoading: isFreelancersLoading, isError: isFreelancersError } = useQuery({
+  const {
+    data: freelancersData,
+    isLoading: isFreelancersLoading,
+    isError: isFreelancersError,
+  } = useQuery({
     queryKey: ["freelancers", "latest-home"],
     queryFn: () => getFreelancers(""),
     staleTime: 60 * 1000,
     enabled: !isFreelancer,
   });
 
-  const allFreelancers = freelancersData?.data?.freelancers || freelancersData?.data || [];
+  const allFreelancers =
+    freelancersData?.data?.freelancers || freelancersData?.data || [];
   const topFreelancers = allFreelancers.slice(0, 4);
 
   const heroTitle = isClient
@@ -99,24 +126,33 @@ const Home = () => {
     to: "/register?role=client",
   };
 
-  const feedTitle = isClient ? "مستقلون مرشحون للتوظيف الفوري" : "أحدث الفرص التقنية النشطة";
+  const feedTitle = isClient
+    ? "مستقلون مرشحون للتوظيف الفوري"
+    : "أحدث الفرص التقنية النشطة";
   const feedItems = isClient ? topFreelancers : latestProjects;
 
   if (isInitializing) {
     return (
-      <main dir="rtl" className="min-h-screen bg-[#080B10] text-slate-100 flex flex-col items-center justify-center gap-4">
+      <main
+        dir="rtl"
+        className="min-h-screen bg-[#080B10] text-slate-100 flex flex-col items-center justify-center gap-4"
+      >
         <div className="relative w-16 h-16">
           <div className="absolute inset-0 rounded-full border-4 border-secondary/20 animate-ping" />
           <div className="absolute inset-0 rounded-full border-4 border-t-secondary border-r-transparent border-b-transparent border-l-transparent animate-spin" />
         </div>
-        <div className="text-sm font-medium text-slate-400 tracking-wide animate-pulse">جاري تحضير بيئة مسار الذكية...</div>
+        <div className="text-sm font-medium text-slate-400 tracking-wide animate-pulse">
+          جاري تحضير بيئة مسار الذكية...
+        </div>
       </main>
     );
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-[#080B10] text-slate-100 font-sans text-right overflow-x-hidden relative selection:bg-secondary/30 selection:text-white">
-      
+    <main
+      dir="rtl"
+      className="min-h-screen bg-[#080B10] text-slate-100 font-['Outfit'] text-right overflow-x-hidden relative selection:bg-secondary/30 selection:text-white"
+    >
       {/* 🌌 تأثيرات الإضاءة المحيطية العميقة الـ Cyber-Punk Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-40 right-1/4 h-[500px] w-[500px] rounded-full bg-secondary/5 blur-[140px] animate-pulse [animation-duration:8s]" />
@@ -126,7 +162,7 @@ const Home = () => {
       <SmartChatWidget />
 
       {/* 🚀 Hero Section (Premium Cyber Panel) */}
-      <motion.section 
+      <motion.section
         className="relative pt-32 pb-20 z-10"
         initial="hidden"
         animate="visible"
@@ -139,16 +175,16 @@ const Home = () => {
           >
             {/* إضاءة خطية خفيفة أعلى الكارت */}
             <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            
+
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-semibold bg-secondary/10 border border-secondary/20 text-secondary uppercase tracking-widest mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping" />
               منظومة الماتشينج الذكية المدعومة بالـ AI
             </span>
-            
-            <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-[1.15] tracking-tight max-w-4xl">
+
+            <h1 className="text-4xl md:text-6xl font-black text-white leading-[1.15] tracking-tight max-w-4xl">
               {heroTitle}
             </h1>
-            
+
             <p className="mt-6 max-w-3xl text-base md:text-lg text-slate-400 leading-relaxed font-light">
               {heroSubtitle}
             </p>
@@ -190,13 +226,22 @@ const Home = () => {
                 className="relative rounded-2xl border border-white/[0.05] bg-gradient-to-b from-white/[0.02] to-transparent p-6 flex flex-col justify-between group hover:border-slate-800 transition-colors"
               >
                 <div>
-                  <span className={`text-4xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`} dir="ltr">
+                  <span
+                    className={`text-4xl font-black bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}
+                    dir="ltr"
+                  >
                     {stat.value}
                   </span>
-                  <h3 className="mt-4 text-base font-bold text-slate-200">{stat.label}</h3>
-                  <p className="mt-1 text-xs text-slate-500 leading-relaxed">{stat.desc}</p>
+                  <h3 className="mt-4 text-base font-bold text-slate-200">
+                    {stat.label}
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500 leading-relaxed">
+                    {stat.desc}
+                  </p>
                 </div>
-                <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity text-slate-700 text-lg">↗</div>
+                <div className="absolute bottom-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity text-slate-700 text-lg">
+                  ↗
+                </div>
               </motion.div>
             ))}
           </div>
@@ -212,10 +257,17 @@ const Home = () => {
         variants={containerVariants}
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div variants={itemVariants} className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+          <motion.div
+            variants={itemVariants}
+            className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-4"
+          >
             <div>
-              <span className="text-xs uppercase tracking-widest text-secondary font-bold">توصيات حية مخصصة للـ Profile</span>
-              <h2 className="mt-2 text-3xl font-extrabold text-white tracking-tight">{feedTitle}</h2>
+              <span className="text-xs uppercase tracking-widest text-secondary font-bold">
+                توصيات حية مخصصة للـ Profile
+              </span>
+              <h2 className="mt-2 text-3xl font-extrabold text-white tracking-tight">
+                {feedTitle}
+              </h2>
               <p className="mt-2 text-sm text-slate-400 max-w-2xl leading-relaxed">
                 {isClient
                   ? "محترفو البرمجيات والذكاء الاصطناعي الأعلى تقييماً والمتاحين لبدء التنفيذ الفوري."
@@ -224,7 +276,10 @@ const Home = () => {
             </div>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="grid gap-6 md:grid-cols-2">
+          <motion.div
+            variants={itemVariants}
+            className="grid gap-6 md:grid-cols-2"
+          >
             {isProjectsLoading || isFreelancersLoading ? (
               <div className="col-span-full border border-dashed border-white/10 rounded-2xl p-12 text-center text-slate-400 text-sm animate-pulse">
                 🔄 جاري سحب وتحليل قنوات البيانات الفنية لمنصة مسار...
@@ -244,10 +299,17 @@ const Home = () => {
                       <div>
                         <div className="flex items-start justify-between gap-4">
                           <div>
-                            <h4 className="text-lg font-bold text-white group-hover:text-secondary transition-colors">{item.name}</h4>
-                            <p className="text-xs text-slate-500 mt-0.5">{item.role || "Senior Full Stack Engineer"}</p>
+                            <h4 className="text-lg font-bold text-white group-hover:text-secondary transition-colors">
+                              {item.name}
+                            </h4>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {item.role || "Senior Full Stack Engineer"}
+                            </p>
                           </div>
-                          <span className="text-xs font-bold text-accent bg-accent/5 border border-accent/20 px-3 py-1 rounded-lg" dir="ltr">
+                          <span
+                            className="text-xs font-bold text-accent bg-accent/5 border border-accent/20 px-3 py-1 rounded-lg"
+                            dir="ltr"
+                          >
                             {item.rate || "$45 / hr"}
                           </span>
                         </div>
@@ -256,15 +318,23 @@ const Home = () => {
                         to={`/freelancers/${item._id}`}
                         className="mt-6 inline-flex items-center text-xs font-bold text-secondary gap-1 group/link self-start"
                       >
-                        معاينة الملف الفني الموثق <span className="group-hover/link:-translate-x-1 transition-transform">←</span>
+                        معاينة الملف الفني الموثق{" "}
+                        <span className="group-hover/link:-translate-x-1 transition-transform">
+                          ←
+                        </span>
                       </Link>
                     </>
                   ) : (
                     <>
                       <div>
                         <div className="flex items-start justify-between gap-4">
-                          <h4 className="text-lg font-bold text-white group-hover:text-secondary transition-colors max-w-[70%]">{item.title}</h4>
-                          <span className="text-xs font-bold text-secondary bg-secondary/5 border border-secondary/20 px-3 py-1 rounded-lg" dir="ltr">
+                          <h4 className="text-lg font-bold text-white group-hover:text-secondary transition-colors max-w-[70%]">
+                            {item.title}
+                          </h4>
+                          <span
+                            className="text-xs font-bold text-secondary bg-secondary/5 border border-secondary/20 px-3 py-1 rounded-lg"
+                            dir="ltr"
+                          >
                             $ {item.budget}
                           </span>
                         </div>
@@ -273,7 +343,10 @@ const Home = () => {
                         to={`/projects/${item._id}`}
                         className="mt-6 inline-flex items-center text-xs font-bold text-secondary gap-1 group/link self-start"
                       >
-                        عرض كراسة الشروط والتفاصيل <span className="group-hover/link:-translate-x-1 transition-transform">←</span>
+                        عرض كراسة الشروط والتفاصيل{" "}
+                        <span className="group-hover/link:-translate-x-1 transition-transform">
+                          ←
+                        </span>
                       </Link>
                     </>
                   )}
@@ -294,10 +367,15 @@ const Home = () => {
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={itemVariants} className="mb-12">
-            <span className="text-xs uppercase tracking-widest text-secondary font-bold">الحماية القانونية والمالية</span>
-            <h2 className="mt-2 text-3xl font-extrabold text-white tracking-tight">اعمل بضمان أمان مالي فائق</h2>
+            <span className="text-xs uppercase tracking-widest text-secondary font-bold">
+              الحماية القانونية والمالية
+            </span>
+            <h2 className="mt-2 text-3xl font-extrabold text-white tracking-tight">
+              اعمل بضمان أمان مالي فائق
+            </h2>
             <p className="mt-2 text-sm text-slate-400 max-w-2xl leading-relaxed">
-              بيئة تشغيل رقمية محكومة بقوانين الدفع المالي المشروط (Escrow) لحفظ مستحقات التكويد والتسليم الفوري.
+              بيئة تشغيل رقمية محكومة بقوانين الدفع المالي المشروط (Escrow) لحفظ
+              مستحقات التكويد والتسليم الفوري.
             </p>
           </motion.div>
 
@@ -310,13 +388,17 @@ const Home = () => {
               >
                 {/* خلفية متوهجة خفيفة جداً تظهر عند الـ Hover خلف الإيقونة */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                
+
                 <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 border border-white/[0.08] text-xl shadow-inner">
                   {signal.icon}
                 </div>
-                
-                <h3 className="text-base font-bold text-white">{signal.title}</h3>
-                <p className="mt-3 text-xs text-slate-400 leading-relaxed font-light">{signal.description}</p>
+
+                <h3 className="text-base font-bold text-white">
+                  {signal.title}
+                </h3>
+                <p className="mt-3 text-xs text-slate-400 leading-relaxed font-light">
+                  {signal.description}
+                </p>
               </motion.div>
             ))}
           </div>

@@ -11,13 +11,14 @@ export default function SmartChatWidget() {
   // الحماية: يظهر الحاوية فقط وإذا كان الدور المسجل هو عميل (Client) لسلامة الـ Logic
   if (user?.role?.toLowerCase() !== "client") return null;
 
+  // داخل ملف SmartChatWidget.jsx - تعديل دالة الـ handleSubmit:
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!text.trim()) return;
 
-    // التوجيه التلقائي لغرفة الشات وضخ الرسالة الأولى بداخل الـ state
+    // 🎯 التوجيه وضخ الرسالة بالاسم الصحيح الموثق في الـ Page logic
     navigate("/ai-assistant", {
-      state: { prefilledProjectData: { description: text } },
+      state: { firstMessage: text },
     });
     setText("");
   };

@@ -1,8 +1,8 @@
 import { useNotifications } from "../hooks/useNotifications";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
-import { FiTrash2, FiBellOff } from "react-icons/fi"; // 🎯 حقن أيقونات ناعمة بدلاً من الـ Emojis البدائية للـ Premium Look
-
+import { FiTrash2, FiBellOff } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 const getNotificationDetails = (type) => {
   switch (type) {
     case "proposal_received":
@@ -90,6 +90,16 @@ export default function NotificationsDropdown({ isOpen, onClose }) {
     isMarkingAll,
     removeNotification,
   } = useNotifications();
+  const navigate = useNavigate();
+
+  const handleNotificationClick = (notif) => {
+    if (!notif.isRead) {
+      markAsRead(notif._id);
+    }
+    if (notif.relatedProject) {
+      navigate(`/projects/${notif.relatedProject}`);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -146,7 +156,7 @@ export default function NotificationsDropdown({ isOpen, onClose }) {
             return (
               <div
                 key={notif._id}
-                onClick={() => !notif.isRead && markAsRead(notif._id)}
+                onClick={() => handleNotificationClick(notif)}
                 className={`p-4 flex gap-3 hover:bg-white/[0.01] transition-all cursor-pointer relative group ${
                   !notif.isRead ? "bg-secondary/[0.01]" : ""
                 }`}

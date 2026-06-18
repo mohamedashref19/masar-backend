@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // 🔥 أضفنا useLocation لقطف داتا الشات بوت
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { FiPlus, FiAlertTriangle } from "react-icons/fi";
 
@@ -9,20 +9,19 @@ import CreateProjectForm from "../features/projects/components/CreateProjectForm
 export default function PostJob() {
   const { mutate: createProject, isPending } = useCreateProject();
   const navigate = useNavigate();
-  const location = useLocation(); // 🎯 هنا بنستقبل الـ State المبعوتة أثناء الـ Navigation
+  const location = useLocation();
 
-  // 🤖 استقبال الداتا الحقيقية من الـ chatbot pipeline أو تعيينها كـ null لو مش موجودة
-  const chatbotData = location.state?.chatbotProjectData || null;
+  // 🎯 التعديل الجوهري: لقط الاسم الحقيقي المبعوث من الـ chatbotPage بالملي
+  const chatbotData = location.state?.prefilledProjectData || null;
 
-  // 🎯 دالة سحرية لتنظيف وتحضير المهارات (Skills Cleanup)
-  // لو الشات بوت باعتها مصفوفة [React, Node] يحولها لنص "React, Node" عشان الـ Input يفهمها
+  // 🎯 تنظيف وتحضير المهارات
   const normalizeSkills = (skills) => {
     if (Array.isArray(skills)) return skills.join(", ");
     if (typeof skills === "string") return skills;
     return "";
   };
 
-  // 🔄 تشكيل الداتا النهائية الممررة للفورم (إما الداتا الحقيقية المفرومة أو فورم فاضي تماماً)
+  // 🔄 تشكيل الداتا النهائية الممررة للفورم
   const prefilledData = chatbotData
     ? {
         title: chatbotData.title || "",
@@ -34,8 +33,7 @@ export default function PostJob() {
         complexity: chatbotData.complexity || "Medium",
         experience_required: chatbotData.experience_required || "Intermediate",
       }
-    : null; // ❌ لو الشات بوت مش باعت حاجة، القيمة هتبقا null والفورم هيفتح بـ defaultValues الفاضية
-
+    : null;
   const handleCreateProject = (formData) => {
     toast.loading(
       "جاري نشر كراسة الشروط الفنية وتوثيق المشروع على السيرفر... 🚀",
@@ -48,7 +46,7 @@ export default function PostJob() {
         if (data?.project?._id) {
           navigate(`/projects/${data.project._id}`);
         } else {
-          navigate("/dashboard");
+          navigate("/client-dashboard");
         }
       },
       onError: (error) => {

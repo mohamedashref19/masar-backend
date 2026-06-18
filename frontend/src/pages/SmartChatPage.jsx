@@ -104,29 +104,29 @@ export default function SmartChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* ميجا بانر الـ Call-to-Action الختامي عند اكتمال الـ JSON */}
         {isDataReady && (
-          <div className="p-4 bg-secondary/[0.03] border-t border-secondary/20 flex flex-col md:flex-row justify-between items-center gap-4 animate-in slide-in-from-bottom-5 duration-300">
-            <div className="text-right">
-              <h4 className="text-secondary font-bold text-sm flex items-center gap-1.5">
-                <FiCheckCircle /> نموذج المتطلبات الذكي جاهز كلياً!
+          <div className="p-5 bg-secondary/[0.04] border-t-2 border-secondary/30 rounded-b-2xl flex flex-col md:flex-row justify-between items-center gap-4 animate-in slide-in-from-bottom-5 duration-300 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/[0.02] rounded-full blur-2xl" />
+            <div className="text-right z-10">
+              <h4 className="text-secondary font-black text-sm flex items-center gap-1.5">
+                <FiCheckCircle className="text-secondary animate-bounce" />{" "}
+                نموذج المتطلبات الذكي جاهز كلياً!
               </h4>
-              <p className="text-slate-400 text-xs mt-0.5 font-light">
-                قام السيستم بفرز المهارات، تصنيف القسم، تقدير الميزانية وجدولة
-                المواعيد بناءً على حديثك.
+              <p className="text-slate-400 text-xs mt-1 font-light max-w-xl leading-relaxed">
+                قام الذكاء الاصطناعي بتهيئة العنوان الفني، فرز المهارات، وتقدير
+                الميزانية وجدولة المواعيد بناءً على حديثك. اضغط للنشر فوراً.
               </p>
             </div>
             <Button
               onClick={handleProceedToPost}
               variant="accent"
-              className="w-full md:w-auto font-bold text-xs py-3.5 px-6 shadow-xl shadow-secondary/10 text-slate-950 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="w-full md:w-auto font-black text-xs py-4 px-8 shadow-2xl shadow-secondary/20 text-slate-950 hover:scale-[1.03] active:scale-[0.97] transition-all shrink-0 rounded-xl"
             >
               الانتقال لصفحة المراجعة والنشر الفوري 🚀
             </Button>
           </div>
         )}
 
-        {/* فورم حقل الإدخال السفلي */}
         {!isDataReady && (
           <form
             onSubmit={handleSendMessage}
@@ -141,13 +141,13 @@ export default function SmartChatPage() {
                   ? "يرجى الضغط على زر إعادة المحاولة بالأعلى أولاً..."
                   : "اكتب مواصفات مشروعك هنا (مثال: أريد ويب سايت بـ React وميزانيتي 4000$)..."
               }
-              disabled={!!lastFailedMessage}
+              disabled={!!lastFailedMessage || isTyping}
               className="flex-1 bg-slate-950 border border-white/[0.08] focus:border-secondary rounded-xl px-4 py-3 text-xs md:text-sm text-white focus:outline-none transition-colors text-right disabled:opacity-40"
             />
             <button
               type="submit"
               disabled={!inputText.trim() || isTyping || !!lastFailedMessage}
-              className="bg-secondary text-slate-950 px-5 rounded-xl text-xs md:text-sm font-bold disabled:opacity-30 hover:bg-secondary/90 transition-all flex items-center gap-1.5"
+              className="bg-secondary text-slate-950 px-5 rounded-xl text-xs md:text-sm font-bold disabled:opacity-30 hover:bg-secondary/90 transition-all flex items-center gap-1.5 shadow-[0_4px_15px_rgba(228,255,0,0.1)]"
             >
               <FiSend /> إرسال الرد
             </button>

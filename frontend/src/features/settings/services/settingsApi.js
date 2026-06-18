@@ -1,13 +1,8 @@
 import api from "../../../services/api";
 
-// services/settingsApi.js
-export const updateMe = async (formData) => {
-  const response = await api.patch("/users/updateMe", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  console.log("Response from updateMe:", response.data); // Debug log
+// تأكد أن الدالة بداخل settingsApi.js بسيطة كذا وبدون Headers معقدة:
+export const updateMe = async (payload) => {
+  const response = await api.patch("/users/updateMe", payload);
   return response.data;
 };
 

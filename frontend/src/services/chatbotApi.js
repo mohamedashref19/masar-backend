@@ -72,9 +72,15 @@ export const analyzeProjectRequirements = async (chatHistory) => {
     throw new Error("لم يتم استلام نص تحليلي");
   }
 
-  const cleanedText = rawText.trim();
-  console.log("📥 الرد القادم من جيميناي:", cleanedText);
+  // 🎯 تنظيف صارم لقص أي كود بلوك رمادي يفرضه جيميناي
+  let cleanedText = rawText.trim();
+  if (cleanedText.includes("```")) {
+    cleanedText = cleanedText.replace(/```json|```/g, "").trim();
+  }
 
+  console.log("📥 الرد النظيف القادم من جيميناي:", cleanedText);
+
+  // الفحص الأضمن
   if (cleanedText.startsWith("{") && cleanedText.endsWith("}")) {
     try {
       return JSON.parse(cleanedText);
